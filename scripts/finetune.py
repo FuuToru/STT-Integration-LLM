@@ -15,7 +15,7 @@ class RunConfig:
     log_config: LogConfig = field(default_factory=LogConfig)
     fsdp_config: FSDPConfig = field(default_factory=FSDPConfig)
     debug: bool = field(default=False, metadata={"help": "Use pdb when true"})
-    metric: str = field(default="acc", metadata={"help": "The metric for evaluation"})
+    metric: str = field(default="wer", metadata={"help": "The metric for evaluation"})
     ckpt_path: Optional[str] = field(
         default=None, metadata={"help": "The path to projector checkpoint"}
     )

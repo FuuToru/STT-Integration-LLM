@@ -5,6 +5,7 @@ export CUDA_VISIBLE_DEVICES=0,1
 export TOKENIZERS_PARALLELISM=false
 # export CUDA_LAUNCH_BLOCKING=1
 export OMP_NUM_THREADS=1
+export WANDB_API_KEY=yourwandbkey
 
 # debug setting for multiple gpus
 # export NCCL_DEBUG=INFO

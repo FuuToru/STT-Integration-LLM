@@ -1,20 +1,36 @@
+from jiwer import wer
 import torch
 
-def compute_accuracy(pad_outputs, pad_targets, ignore_label):
-    """Calculate accuracy.
+def compute_wer(tokenizer, pad_outputs, pad_targets, ignore_label):
+    """
+    Calculate Word Error Rate (WER) using masking instead of slicing.
 
     Args:
+        tokenizer: Tokenizer with .batch_decode() method.
         pad_outputs (LongTensor): Prediction tensors (B, Lmax).
         pad_targets (LongTensor): Target label tensors (B, Lmax).
-        ignore_label (int): Ignore label id.
+        ignore_label (int): Ignore label id, usually -100.
 
     Returns:
-        float: Accuracy value (0.0 - 1.0).
-
+        float: Average WER for all sequences (0.0 - 1.0).
     """
     mask = pad_targets != ignore_label
-    numerator = torch.sum(
-        pad_outputs.masked_select(mask) == pad_targets.masked_select(mask)
-    )
-    denominator = torch.sum(mask)
-    return numerator.float() / denominator.float() #(FIX:MZY):return torch.Tensor type
+
+    masked_outputs = []
+    masked_targets = []
+
+    for i in range(pad_outputs.size(0)):
+        valid_output = pad_outputs[i][mask[i]].tolist()
+        valid_target = pad_targets[i][mask[i]].tolist()
+
+        masked_outputs.append(valid_output)
+        masked_targets.append(valid_target)
+
+    pred_texts = tokenizer.batch_decode(masked_outputs, skip_special_tokens=True)
+    target_texts = tokenizer.batch_decode(masked_targets, skip_special_tokens=True)
+
+    total_wer = 0.0
+    for pred, ref in zip(pred_texts, target_texts):
+        total_wer += wer(ref, pred)
+
+    return total_wer / len(pred_texts) if pred_texts else 0.0

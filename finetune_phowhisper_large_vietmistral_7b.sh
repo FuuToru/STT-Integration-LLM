@@ -75,5 +75,6 @@ else
         ++train_config.enable_fsdp=true \
         ++train_config.enable_ddp=false \
         ++train_config.use_fp16=true \
+        ++train_config.use_fsdp=true \
         $hydra_args
 fi

@@ -3,6 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from dataclasses import dataclass
+from transformers import Wav2Vec2Model
+from torch import nn
 
 
 class WhisperWrappedEncoder:
@@ -37,3 +39,14 @@ class WhisperWrappedEncoder:
             encoder = whisper.load_model(name=model_config.encoder_path, device='cpu').encoder
             encoder.extract_variable_length_features = types.MethodType(extract_variable_length_features, encoder)
         return encoder
+
+
+
+class Wav2Vec2WrappedEncoder(nn.Module):
+    def __init__(self, model_path):
+        super().__init__()
+        self.model = Wav2Vec2Model.from_pretrained(model_path)
+
+    def forward(self, input_values, attention_mask=None):
+        outputs = self.model(input_values=input_values, attention_mask=attention_mask)
+        return outputs.last_hidden_state  # hoặc pooled output nếu cần

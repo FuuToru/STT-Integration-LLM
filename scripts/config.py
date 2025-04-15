@@ -6,7 +6,7 @@ from torch.distributed.fsdp import ShardingStrategy
 
 @dataclass
 class ModelConfig:
-    file: str = ""
+    file: str = "scripts/model/stt_model_asr.py:model_factory"
     llm_name: str = "vietmistral-7b"
     llm_path: str = "PATH/to/LLM"
     llm_type: str = "decoder_only"

@@ -17,10 +17,11 @@ from torch.distributed.fsdp import (
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 from torch.distributed.fsdp.fully_sharded_data_parallel import CPUOffload
-from src.policies import AnyPrecisionAdamW, apply_fsdp_checkpointing
+from src.policies.activation_checkpointing_functions import  apply_fsdp_checkpointing
+from src.policies.anyprecision_optimizer import  AnyPrecisionAdamW
 
 # util
-from src.utils import fsdp_auto_wrap_policy
+from src.utils.fsdp_utils import fsdp_auto_wrap_policy
 from src.utils.config_utils import get_dataloader_kwargs
 
 from src.utils.dataset_utils import get_preprocessed_dataset

@@ -1,23 +1,23 @@
 #!/bin/bash
 # export PYTHONPATH=/root/whisper:$PYTHONPATH
-export PYTHONPATH=/STT-INTERGRATION-LLM:$PYTHONPATH
-export CUDA_VISIBLE_DEVICES=0,1
+export PYTHONPATH=$(pwd):$PYTHONPATH
+export CUDA_VISIBLE_DEVICES=0
 export TOKENIZERS_PARALLELISM=false
 # export CUDA_LAUNCH_BLOCKING=1
 export OMP_NUM_THREADS=1
-export WANDB_API_KEY=yourwandbkey
+export WANDB_API_KEY=
 
 # debug setting for multiple gpus
 # export NCCL_DEBUG=INFO
 # export NCCL_DEBUG_SUBSYS=ALL
 # export TORCH_DISTRIBUTED_DEBUG=INFO
 
-run_dir=/STT-INTERGRATION-LLM
-cd $run_dir
-code_dir=/sctripts
+# run_dir=/STT-INTERGRATION-LLM
+# cd $run_dir
+code_dir=$(pwd)/scripts
 
-speech_encoder_path=/PATH/TO/whisper/large-v3.pt
-llm_path=/PATH/TO/vietmistral-7b
+speech_encoder_path=nguyenvulebinh/wav2vec2-base-vietnamese-250h
+llm_path=Viet-Mistral/Vistral-7B-Chat
 train_data_path=/PATH/TO/DATA.jsonl
 val_data_path=/PATH/TO/DATA.jsonl
 
@@ -28,15 +28,15 @@ hydra.run.dir=$output_dir \
 ++model_config.llm_name=vietmistral-7b \
 ++model_config.llm_path=$llm_path \
 ++model_config.llm_dim=4096 \
-++model_config.encoder_name=whisper \
+++model_config.encoder_name=wav2vec2 \
 ++model_config.encoder_projector_ds_rate=5 \
 ++model_config.encoder_path=$speech_encoder_path \
-++model_config.encoder_dim=1280 \
+++model_config.encoder_dim=768 \
 ++model_config.encoder_projector=linear \
 ++dataset_config.dataset=speech_dataset \
 ++dataset_config.train_data_path=$train_data_path \
 ++dataset_config.val_data_path=$val_data_path \
-++dataset_config.input_type=mel \
+++dataset_config.input_type=raw \
 ++dataset_config.mel_size=128 \
 ++train_config.model_name=asr \
 ++train_config.num_epochs=3 \
@@ -53,7 +53,7 @@ hydra.run.dir=$output_dir \
 ++train_config.output_dir=$output_dir \
 ++metric=wer \
 ++log_config.log_file=/$output_dir/train.log \
-++log_config.use_wandb=true \
+++log_config.use_wandb=false \
 ++log_config.wandb_dir=$output_dir \
 ++log_config.wandb_entity_name=youruserwandb \
 ++log_config.wandb_project_name=stt \
@@ -64,7 +64,7 @@ hydra.run.dir=$output_dir \
 
 # -m debugpy --listen 5678 --wait-for-client
 if [[ $CUDA_VISIBLE_DEVICES != *","* ]]; then
-    python -m debugpy --listen 5678 --wait-for-client $code_dir/finetune.py \
+    python $code_dir/finetune.py \
         $hydra_args
 else
     torchrun \

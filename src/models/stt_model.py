@@ -60,7 +60,7 @@ def setup_tokenizer(train_config, model_config, **kwargs):
                                             trust_remote_code=True,
                                             use_fast=False)
     else:
-        tokenizer = AutoTokenizer.from_pretrained(model_config.llm_path)
+        tokenizer = AutoTokenizer.from_pretrained(model_config.llm_path, token="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")
         tokenizer.pad_token_id = tokenizer.eos_token_id
     return tokenizer
 
@@ -69,20 +69,31 @@ def setup_encoder(train_config, model_config, **kwargs):
     encoder_list = model_config.encoder_name.split(",") if model_config.encoder_name else []
     if len(encoder_list) == 0:
         return None
+
     if len(encoder_list) == 1:
         encoder_name = encoder_list[0]
-        if encoder_name == "whisper" or encoder_name == "qwen-audio":
+        if encoder_name in ["whisper", "qwen-audio"]:
             from src.models.encoder import WhisperWrappedEncoder
             encoder = WhisperWrappedEncoder.load(model_config)
-    print_module_size(encoder, encoder_name, int(os.environ["RANK"]) if train_config.enable_fsdp or train_config.enable_ddp else 0)
 
-    if train_config.freeze_encoder:
-        for name, param in encoder.named_parameters(): 
-            param.requires_grad = False
-        encoder.eval()
-    print_module_size(encoder, encoder_name, int(os.environ["RANK"]) if train_config.enable_fsdp or train_config.enable_ddp else 0)
+        elif encoder_name == "wav2vec2":
+            from src.models.encoder import Wav2Vec2WrappedEncoder
+            encoder = Wav2Vec2WrappedEncoder(model_config.encoder_path)  # nhớ thêm encoder_path vào model_config
 
-    return encoder
+        else:
+            raise ValueError(f"Unsupported encoder: {encoder_name}")
+
+        print_module_size(encoder, encoder_name, int(os.environ["RANK"]) if train_config.enable_fsdp or train_config.enable_ddp else 0)
+
+        if train_config.freeze_encoder:
+            for name, param in encoder.named_parameters():
+                param.requires_grad = False
+            encoder.eval()
+
+        print_module_size(encoder, encoder_name, int(os.environ["RANK"]) if train_config.enable_fsdp or train_config.enable_ddp else 0)
+
+        return encoder
+
 
 def setup_llm(train_config, model_config, **kwargs):
     from pkg_resources import packaging
@@ -116,6 +127,7 @@ def setup_llm(train_config, model_config, **kwargs):
     else:
         model = AutoModelForCausalLM.from_pretrained(
             model_config.llm_path,
+            token="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",
             load_in_8bit=True if train_config.quantization else None,
             device_map="auto" if train_config.quantization else None,
             use_cache=use_cache,

@@ -2,17 +2,21 @@ from src.utils.dataset_utils import load_module_from_py_file
 from pathlib import Path
 
 def get_custom_model_factory(model_config, logger):
-    costom_model_path = model_config.get(
+    custom_model_path = model_config.get(
         "file", None
     )
-    if costom_model_path is None:
+    print('custom model', custom_model_path)
+    
+    if custom_model_path is None:
         from src.models.stt_model import model_factory
         return model_factory
-
-    if ":" in costom_model_path:
-        module_path, func_name = costom_model_path.split(":")
+    
+    if ":" in custom_model_path:
+        module_path, func_name = custom_model_path.split(":")
     else:
-        module_path, func_name = costom_model_path, "model_factory"
+        module_path, func_name = custom_model_path, "model_factory"
+    
+    print('model', module_path)
 
     if not module_path.endswith(".py"):
         raise ValueError(f"Dataset file {module_path} is not a .py file.")

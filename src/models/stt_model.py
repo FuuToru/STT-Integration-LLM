@@ -111,6 +111,7 @@ def setup_llm(train_config, model_config, **kwargs):
         #     raise Exception("latest pytorch nightly build is required to run with low_cpu_fsdp config, "
         #                     "please install latest nightly.")
         rank = int(os.environ["RANK"])
+        print("rank: ", rank)
         if rank == 0:
             model = AutoModelForCausalLM.from_pretrained(
                 model_config.llm_path,

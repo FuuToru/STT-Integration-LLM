@@ -173,14 +173,14 @@ def main(kwargs: DictConfig):
     model_factory = get_custom_model_factory(model_config, logger)
     model, tokenizer = model_factory(train_config, model_config, **kwargs)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  
-    # inspect_tensor_types(model)
-    # print(model)  
+    inspect_tensor_types(model)
+    print(model)  
     model.to(torch.bfloat16)
 
     
     # # Convert the model to bfloat16 if fsdp and pure_bf16 is enabled
-    # if (train_config.enable_fsdp or train_config.enable_ddp) and fsdp_config.pure_bf16:
-    #     model.to(torch.bfloat16)
+    if (train_config.enable_fsdp or train_config.enable_ddp) and fsdp_config.pure_bf16:
+        model.to(torch.bfloat16)
 
     #setting up FSDP if enable_fsdp is enabled
     if train_config.enable_fsdp:

@@ -23,7 +23,7 @@ hydra.run.dir=$output_dir \
 ++model_config.llm_name=vietmistral-7b \
 ++model_config.llm_path=$llm_path \
 ++model_config.llm_dim=4096 \
-++model_config.encoder_name=wav2vec2 \
+++model_config.encoder_name=whisper \
 ++model_config.encoder_projector_ds_rate=5 \
 ++model_config.encoder_path=$speech_encoder_path \
 ++model_config.encoder_dim=768 \
@@ -66,9 +66,8 @@ else
         --nproc_per_node 1 \
         --master_port=29503 \
         $code_dir/finetune.py \
-        ++train_config.enable_fsdp=false \
+        ++train_config.enable_fsdp=true \
         ++train_config.enable_ddp=false \
         ++fsdp_config.pure_bf16=true \
-        ++train_config.quantization=false \
         $hydra_args
 fi

@@ -18,8 +18,8 @@ code_dir=$(pwd)/scripts
 
 speech_encoder_path=nguyenvulebinh/wav2vec2-base-vietnamese-250h
 llm_path=Viet-Mistral/Vistral-7B-Chat
-train_data_path=/PATH/TO/DATA.jsonl
-val_data_path=/PATH/TO/DATA.jsonl
+train_data_path=/kaggle/input/vivos-2025/vivos/vivos_train.jsonl
+val_data_path=/kaggle/input/vivos-2025/vivos/vivos_test.jsonl
 
 output_dir=/tmp/whisper-largev3-vietmistral-7b$(date +"%Y%m%d")
 
@@ -39,7 +39,6 @@ hydra.run.dir=$output_dir \
 ++dataset_config.input_type=raw \
 ++dataset_config.mel_size=128 \
 ++train_config.model_name=asr \
-++train_config.enable_fsdp=true \
 ++train_config.num_epochs=3 \
 ++train_config.freeze_encoder=true \
 ++train_config.freeze_llm=true \
@@ -73,8 +72,8 @@ else
         --nproc_per_node 2 \
         --master_port=29503 \
         $code_dir/finetune.py \
-        ++train_config.enable_fsdp=false \
-        ++train_config.enable_ddp=true \
+        ++train_config.enable_fsdp=true \
+        ++train_config.enable_ddp=false \
         ++train_config.use_fp16=true \
         $hydra_args
 fi

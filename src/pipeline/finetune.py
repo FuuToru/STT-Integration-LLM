@@ -178,110 +178,110 @@ def main(kwargs: DictConfig):
     model.to(torch.bfloat16)
 
     
-    # # Convert the model to bfloat16 if fsdp and pure_bf16 is enabled
-    if (train_config.enable_fsdp or train_config.enable_ddp) and fsdp_config.pure_bf16:
-        model.to(torch.bfloat16)
+    # # # Convert the model to bfloat16 if fsdp and pure_bf16 is enabled
+    # if (train_config.enable_fsdp or train_config.enable_ddp) and fsdp_config.pure_bf16:
+    #     model.to(torch.bfloat16)
 
-    #setting up FSDP if enable_fsdp is enabled
-    if train_config.enable_fsdp:
-        if not train_config.use_peft and train_config.freeze_layers:
+    # #setting up FSDP if enable_fsdp is enabled
+    # if train_config.enable_fsdp:
+    #     if not train_config.use_peft and train_config.freeze_layers:
 
-            freeze_transformer_layers(train_config.num_freeze_layers)
-        # from torch.distributed.fsdp import ShardingStrategy
-        # fsdp_config.sharding_strategy = getattr(ShardingStrategy, fsdp_config.sharding_strategy)
-        mixed_precision_policy, wrapping_policy = get_policies(fsdp_config, rank)
-        my_auto_wrapping_policy = fsdp_auto_wrap_policy(model, LlamaDecoderLayer)
+    #         freeze_transformer_layers(train_config.num_freeze_layers)
+    #     # from torch.distributed.fsdp import ShardingStrategy
+    #     # fsdp_config.sharding_strategy = getattr(ShardingStrategy, fsdp_config.sharding_strategy)
+    #     mixed_precision_policy, wrapping_policy = get_policies(fsdp_config, rank)
+    #     my_auto_wrapping_policy = fsdp_auto_wrap_policy(model, LlamaDecoderLayer)
 
-        model = FSDP(
-            model,
-            auto_wrap_policy= my_auto_wrapping_policy, #(FIX:MZY): Using my_auto_wrapping_policy whether peft or not. This will avoid model shard type check error of requires_grad mismatching.
-            cpu_offload=CPUOffload(offload_params=True) if fsdp_config.fsdp_cpu_offload else None,
-            mixed_precision=mixed_precision_policy if not fsdp_config.pure_bf16 else None,
-            sharding_strategy=fsdp_config.sharding_strategy,
-            device_id=torch.cuda.current_device(),
-            limit_all_gathers=True,
-            sync_module_states=train_config.low_cpu_fsdp,
-            param_init_fn=lambda module: module.to_empty(device=torch.device("cuda"), recurse=False)
-            if train_config.low_cpu_fsdp and rank != 0 else None,
-        )
-        if fsdp_config.fsdp_activation_checkpointing:
-            apply_fsdp_checkpointing(model)
-    elif train_config.enable_ddp:
-        model = model.cuda(local_rank)
-        model = DDP(model, device_ids=[local_rank],
-                    find_unused_parameters=kwargs.get("train_conf", {}).get("find_unused_parameters", False))
-    elif not train_config.quantization:
-        model.to(device)
+    #     model = FSDP(
+    #         model,
+    #         auto_wrap_policy= my_auto_wrapping_policy, #(FIX:MZY): Using my_auto_wrapping_policy whether peft or not. This will avoid model shard type check error of requires_grad mismatching.
+    #         cpu_offload=CPUOffload(offload_params=True) if fsdp_config.fsdp_cpu_offload else None,
+    #         mixed_precision=mixed_precision_policy if not fsdp_config.pure_bf16 else None,
+    #         sharding_strategy=fsdp_config.sharding_strategy,
+    #         device_id=torch.cuda.current_device(),
+    #         limit_all_gathers=True,
+    #         sync_module_states=train_config.low_cpu_fsdp,
+    #         param_init_fn=lambda module: module.to_empty(device=torch.device("cuda"), recurse=False)
+    #         if train_config.low_cpu_fsdp and rank != 0 else None,
+    #     )
+    #     if fsdp_config.fsdp_activation_checkpointing:
+    #         apply_fsdp_checkpointing(model)
+    # elif train_config.enable_ddp:
+    #     model = model.cuda(local_rank)
+    #     model = DDP(model, device_ids=[local_rank],
+    #                 find_unused_parameters=kwargs.get("train_conf", {}).get("find_unused_parameters", False))
+    # elif not train_config.quantization:
+    #     model.to(device)
 
-    # dataset_config = generate_dataset_config(train_config, kwargs)
-    logger.info("dataset_config: {}".format(dataset_config))
-    if not (train_config.enable_fsdp or train_config.enable_ddp) or rank == 0:
-        if log_config.use_wandb:
-            wandb.config.update({"dataset_config": dataset_config})
+    # # dataset_config = generate_dataset_config(train_config, kwargs)
+    # logger.info("dataset_config: {}".format(dataset_config))
+    # if not (train_config.enable_fsdp or train_config.enable_ddp) or rank == 0:
+    #     if log_config.use_wandb:
+    #         wandb.config.update({"dataset_config": dataset_config})
     
-    # Load and preprocess the dataset for training and validation
-    dataset_train = get_preprocessed_dataset(
-        tokenizer,
-        dataset_config,
-        split="train",
-    )
-    if not (train_config.enable_fsdp or train_config.enable_ddp) or rank == 0:
-        logger.info(f"--> Training Set Length = {len(dataset_train)}")
-    dataset_val = get_preprocessed_dataset(
-        tokenizer,
-        dataset_config,
-        split="val",
-    )
-    if not (train_config.enable_fsdp or train_config.enable_ddp) or rank == 0:
-        logger.info(f"--> Validation Set Length = {len(dataset_val)}")
+    # # Load and preprocess the dataset for training and validation
+    # dataset_train = get_preprocessed_dataset(
+    #     tokenizer,
+    #     dataset_config,
+    #     split="train",
+    # )
+    # if not (train_config.enable_fsdp or train_config.enable_ddp) or rank == 0:
+    #     logger.info(f"--> Training Set Length = {len(dataset_train)}")
+    # dataset_val = get_preprocessed_dataset(
+    #     tokenizer,
+    #     dataset_config,
+    #     split="val",
+    # )
+    # if not (train_config.enable_fsdp or train_config.enable_ddp) or rank == 0:
+    #     logger.info(f"--> Validation Set Length = {len(dataset_val)}")
 
-    train_dl_kwargs = get_dataloader_kwargs(train_config, dataset_train, tokenizer, "train")
+    # train_dl_kwargs = get_dataloader_kwargs(train_config, dataset_train, tokenizer, "train")
 
-    # Create DataLoaders for the training and validation dataset
-    train_dataloader = torch.utils.data.DataLoader(
-        dataset_train,
-        num_workers=train_config.num_workers_dataloader,
-        pin_memory=True,
-        **train_dl_kwargs,
-    )
+    # # Create DataLoaders for the training and validation dataset
+    # train_dataloader = torch.utils.data.DataLoader(
+    #     dataset_train,
+    #     num_workers=train_config.num_workers_dataloader,
+    #     pin_memory=True,
+    #     **train_dl_kwargs,
+    # )
 
-    eval_dataloader = None
-    if train_config.run_validation:
+    # eval_dataloader = None
+    # if train_config.run_validation:
 
-        val_dl_kwargs = get_dataloader_kwargs(train_config, dataset_val, tokenizer, "val")
+    #     val_dl_kwargs = get_dataloader_kwargs(train_config, dataset_val, tokenizer, "val")
 
-        eval_dataloader = torch.utils.data.DataLoader(
-            dataset_val,
-            num_workers=train_config.num_workers_dataloader,
-            pin_memory=True,
-            **val_dl_kwargs,
-        )
+    #     eval_dataloader = torch.utils.data.DataLoader(
+    #         dataset_val,
+    #         num_workers=train_config.num_workers_dataloader,
+    #         pin_memory=True,
+    #         **val_dl_kwargs,
+    #     )
 
-    # Initialize the optimizer and learning rate scheduler
-    if fsdp_config.pure_bf16 and fsdp_config.optimizer == "anyprecision":
-        optimizer = AnyPrecisionAdamW(
-            model.parameters(),
-            lr=train_config.lr,
-            momentum_dtype=torch.bfloat16,
-            variance_dtype=torch.bfloat16,
-            use_kahan_summation=False,
-            weight_decay=train_config.weight_decay,
-        )
-    else:
-        optimizer = optim.AdamW(
-            model.parameters(),
-            lr=train_config.lr,
-            weight_decay=train_config.weight_decay,
-        )
-    # scheduler = StepLR(optimizer, step_size=1, gamma=train_config.gamma)
-    scheduler = torch.optim.lr_scheduler.LambdaLR(
-        optimizer, 
-        lr_lambda=lambda step: (
-            min(step / train_config.warmup_steps, 1) if step < train_config.warmup_steps
-            else  max(0.0, 1 - (step - train_config.warmup_steps) / (train_config.total_steps - train_config.warmup_steps))
-            # else 1
-        )
-    )
+    # # Initialize the optimizer and learning rate scheduler
+    # if fsdp_config.pure_bf16 and fsdp_config.optimizer == "anyprecision":
+    #     optimizer = AnyPrecisionAdamW(
+    #         model.parameters(),
+    #         lr=train_config.lr,
+    #         momentum_dtype=torch.bfloat16,
+    #         variance_dtype=torch.bfloat16,
+    #         use_kahan_summation=False,
+    #         weight_decay=train_config.weight_decay,
+    #     )
+    # else:
+    #     optimizer = optim.AdamW(
+    #         model.parameters(),
+    #         lr=train_config.lr,
+    #         weight_decay=train_config.weight_decay,
+    #     )
+    # # scheduler = StepLR(optimizer, step_size=1, gamma=train_config.gamma)
+    # scheduler = torch.optim.lr_scheduler.LambdaLR(
+    #     optimizer, 
+    #     lr_lambda=lambda step: (
+    #         min(step / train_config.warmup_steps, 1) if step < train_config.warmup_steps
+    #         else  max(0.0, 1 - (step - train_config.warmup_steps) / (train_config.total_steps - train_config.warmup_steps))
+    #         # else 1
+    #     )
+    # )
 
     # Start the training process
     results = train(

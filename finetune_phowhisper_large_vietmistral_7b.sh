@@ -72,8 +72,9 @@ else
         --nproc_per_node 2 \
         --master_port=29503 \
         $code_dir/finetune.py \
-        ++train_config.enable_fsdp=true \
+        ++train_config.enable_fsdp=false \
         ++train_config.enable_ddp=false \
         ++fsdp_config.pure_bf16=true \
+        ++train_config.quantization=false \ 
         $hydra_args
 fi

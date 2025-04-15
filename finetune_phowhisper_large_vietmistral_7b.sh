@@ -74,7 +74,6 @@ else
         $code_dir/finetune.py \
         ++train_config.enable_fsdp=true \
         ++train_config.enable_ddp=false \
-        ++train_config.use_fp16=true \
-        ++train_config.use_fsdp=true \
+        ++fsdp_config.pure_bf16=true \
         $hydra_args
 fi

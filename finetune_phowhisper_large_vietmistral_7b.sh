@@ -1,19 +1,14 @@
 #!/bin/bash
-# export PYTHONPATH=/root/whisper:$PYTHONPATH
 export PYTHONPATH=$(pwd):$PYTHONPATH
 export CUDA_VISIBLE_DEVICES=0,1
 export TOKENIZERS_PARALLELISM=false
-# export CUDA_LAUNCH_BLOCKING=1
 export OMP_NUM_THREADS=1
-export WANDB_API_KEY=
 
-# debug setting for multiple gpus
+# Debugging settings for multiple GPUs
 # export NCCL_DEBUG=INFO
 # export NCCL_DEBUG_SUBSYS=ALL
 # export TORCH_DISTRIBUTED_DEBUG=INFO
 
-# run_dir=/STT-INTERGRATION-LLM
-# cd $run_dir
 code_dir=$(pwd)/scripts
 
 speech_encoder_path=nguyenvulebinh/wav2vec2-base-vietnamese-250h
@@ -59,7 +54,6 @@ hydra.run.dir=$output_dir \
 ++log_config.wandb_project_name=stt \
 ++log_config.wandb_exp_name=whisper-largev3-vietmistral-7b \
 ++log_config.log_interval=5 \
-
 "
 
 # -m debugpy --listen 5678 --wait-for-client
@@ -69,12 +63,12 @@ if [[ $CUDA_VISIBLE_DEVICES != *","* ]]; then
 else
     torchrun \
         --nnodes 1 \
-        --nproc_per_node 2 \
+        --nproc_per_node 1 \
         --master_port=29503 \
         $code_dir/finetune.py \
         ++train_config.enable_fsdp=false \
         ++train_config.enable_ddp=false \
         ++fsdp_config.pure_bf16=true \
-        ++train_config.quantization=false \ 
+        ++train_config.quantization=false \
         $hydra_args
 fi

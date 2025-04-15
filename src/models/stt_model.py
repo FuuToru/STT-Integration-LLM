@@ -60,7 +60,7 @@ def setup_tokenizer(train_config, model_config, **kwargs):
                                             trust_remote_code=True,
                                             use_fast=False)
     else:
-        tokenizer = AutoTokenizer.from_pretrained(model_config.llm_path, token="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")
+        tokenizer = AutoTokenizer.from_pretrained(model_config.llm_path, token="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")
         tokenizer.pad_token_id = tokenizer.eos_token_id
     return tokenizer
 
@@ -114,8 +114,9 @@ def setup_llm(train_config, model_config, **kwargs):
         if rank == 0:
             model = AutoModelForCausalLM.from_pretrained(
                 model_config.llm_path,
-                load_in_8bit=True if train_config.quantization else None,
-                device_map="auto" if train_config.quantization else None,
+                token="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",
+                torch_dtype=torch.bfloat16,
+                device_map="auto",
                 use_cache=use_cache,
             )
         else:
@@ -127,9 +128,9 @@ def setup_llm(train_config, model_config, **kwargs):
     else:
         model = AutoModelForCausalLM.from_pretrained(
             model_config.llm_path,
-            token="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",
-            load_in_8bit=True if train_config.quantization else None,
-            device_map="auto" if train_config.quantization else None,
+            token="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",
+            torch_dtype=torch.bfloat16,
+            device_map="auto",
             use_cache=use_cache,
         )
     if (train_config.enable_fsdp or train_config.enable_ddp) and train_config.use_fast_kernels:

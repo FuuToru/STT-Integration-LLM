@@ -266,7 +266,8 @@ class stt_model(nn.Module):
 
             if self.model_config.encoder_name == "whisper":
                 encoder_outs = self.encoder.extract_variable_length_features(audio_mel.permute(0, 2, 1)) # bs*seq*dim
-                
+            elif self.model_config.encoder_name == "wav2vec2":
+                encoder_outs = self.encoder(audio).last_hidden_state  # audio: [B, L]
             if self.encoder is None:
                 encoder_outs = audio_mel if audio_mel is not None else audio
 

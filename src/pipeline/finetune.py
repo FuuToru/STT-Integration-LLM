@@ -66,6 +66,30 @@ def main_hydra(cfg: DictConfig):
         pdb.set_trace()
         
     main(kwargs)
+    
+
+import torch
+from torch.distributed.tensor import DTensor
+
+def inspect_tensor_types(model):
+    print("=== Checking Parameters ===")
+    for name, param in model.named_parameters():
+        if isinstance(param, DTensor):
+            print(f"[DTensor] Parameter: {name} - shape: {param.shape}")
+        elif isinstance(param, torch.Tensor):
+            print(f"[Tensor ] Parameter: {name} - shape: {param.shape}")
+        else:
+            print(f"[Other  ] Parameter: {name} - type: {type(param)}")
+
+    print("\n=== Checking Buffers ===")
+    for name, buffer in model.named_buffers():
+        if isinstance(buffer, DTensor):
+            print(f"[DTensor] Buffer: {name} - shape: {buffer.shape}")
+        elif isinstance(buffer, torch.Tensor):
+            print(f"[Tensor ] Buffer: {name} - shape: {buffer.shape}")
+        else:
+            print(f"[Other  ] Buffer: {name} - type: {type(buffer)}")
+
 
 
 def main(kwargs: DictConfig):
@@ -148,7 +172,9 @@ def main(kwargs: DictConfig):
 
     model_factory = get_custom_model_factory(model_config, logger)
     model, tokenizer = model_factory(train_config, model_config, **kwargs)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")    
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  
+    inspect_tensor_types(model)
+    print(model)  
 
     
     # Convert the model to bfloat16 if fsdp and pure_bf16 is enabled

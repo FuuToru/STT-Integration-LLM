@@ -39,6 +39,7 @@ hydra.run.dir=$output_dir \
 ++dataset_config.input_type=raw \
 ++dataset_config.mel_size=128 \
 ++train_config.model_name=asr \
+++train_config.enable_fsdp=true \
 ++train_config.num_epochs=3 \
 ++train_config.freeze_encoder=true \
 ++train_config.freeze_llm=true \

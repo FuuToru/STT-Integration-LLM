@@ -100,6 +100,7 @@ def setup_encoder(train_config, model_config, **kwargs):
 def setup_llm(train_config, model_config, **kwargs):
     use_cache = False if train_config.enable_fsdp or train_config.enable_ddp else None
     rank = int(os.environ["RANK"])
+    local_rank = int(os.environ["LOCAL_RANK"])
 
     if (train_config.enable_fsdp or train_config.enable_ddp) and train_config.low_cpu_fsdp:
         logger.info(f"[rank {rank}] loading LLM with low_cpu_fsdp using Accelerate")
@@ -114,8 +115,8 @@ def setup_llm(train_config, model_config, **kwargs):
         model = load_checkpoint_and_dispatch(
             model,
             model_config.llm_path,
-            device_map = {"": rank},
-            max_memory = {rank: "8GiB"},
+            device_map = {"": local_rank},
+            max_memory = {local_rank: "8GiB"},
             no_split_module_classes=["MistralDecoderLayer"],
             dtype=torch.bfloat16 ,
         )

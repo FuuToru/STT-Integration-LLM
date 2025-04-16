@@ -111,6 +111,29 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
                     outputs, *rest = model(**batch)
                 wer = rest[0] if rest else -1
                 loss = outputs.loss
+                
+                if step % train_config.warmup_steps == 0:  
+                    logger.info(f"\nStart Forward")
+                    input_ids = batch["input_ids"][0].detach().cpu()
+                    label_ids = batch["labels"][0].detach().cpu()
+                    logits = outputs.logits.detach().cpu()
+                    pred_ids = logits.argmax(dim=-1)[0]
+
+                    # Mask để bỏ các vị trí -100
+                    valid_mask = label_ids != -100
+                    masked_label_ids = label_ids[valid_mask]
+                    masked_pred_ids = pred_ids[valid_mask]
+
+                    # Decode
+                    input_text = tokenizer.decode(input_ids, skip_special_tokens=True)
+                    label_text = tokenizer.decode(masked_label_ids, skip_special_tokens=True)
+                    pred_text = tokenizer.decode(masked_pred_ids, skip_special_tokens=True)
+
+                    logger.info(f"\n[Sample Output | Epoch {epoch+1} | Step {step}]")
+                    logger.info(f"\nInput Text     : {input_text}")
+                    logger.info(f"\nGround Truth   : {label_text}")
+                    logger.info(f"\nPredicted Text : {pred_text}")
+
 
                 loss = loss / gradient_accumulation_steps
                 wer = wer / gradient_accumulation_steps
@@ -413,6 +436,26 @@ def evaluation(model,train_config, eval_dataloader, local_rank, tokenizer):
                     outputs, *rest = model(**batch)
                 wer = rest[0] if rest else -1
                 loss = outputs.loss
+                if step % 50 == 0:  
+                    logger.info(f"\nEVALUATION")
+                    input_ids = batch["input_ids"][0].detach().cpu()
+                    label_ids = batch["labels"][0].detach().cpu()
+                    logits = outputs.logits.detach().cpu()
+                    pred_ids = logits.argmax(dim=-1)[0]
+
+                    # Mask để bỏ các vị trí -100
+                    valid_mask = label_ids != -100
+                    masked_label_ids = label_ids[valid_mask]
+                    masked_pred_ids = pred_ids[valid_mask]
+
+                    # Decode
+                    input_text = tokenizer.decode(input_ids, skip_special_tokens=True)
+                    label_text = tokenizer.decode(masked_label_ids, skip_special_tokens=True)
+                    pred_text = tokenizer.decode(masked_pred_ids, skip_special_tokens=True)
+
+                    logger.info(f"\nInput Text     : {input_text}")
+                    logger.info(f"\nGround Truth   : {label_text}")
+                    logger.info(f"\nPredicted Text : {pred_text}")
 
                 eval_loss += loss.detach().float()
                 eval_wer += wer

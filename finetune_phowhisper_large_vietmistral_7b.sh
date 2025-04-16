@@ -4,6 +4,8 @@ export CUDA_VISIBLE_DEVICES=0
 export TOKENIZERS_PARALLELISM=false
 export OMP_NUM_THREADS=1
 
+export WANDB_API_KEY=879f22e33e82b78fdf67aa394cf6620c24340a4c
+
 # Debugging settings for multiple GPUs
 # export NCCL_DEBUG=INFO
 # export NCCL_DEBUG_SUBSYS=ALL
@@ -48,11 +50,11 @@ hydra.run.dir=$output_dir \
 ++train_config.output_dir=$output_dir \
 ++metric=wer \
 ++log_config.log_file=/$output_dir/train.log \
-++log_config.use_wandb=false \
+++log_config.use_wandb=true \
 ++log_config.wandb_dir=$output_dir \
-++log_config.wandb_entity_name=youruserwandb \
+++log_config.wandb_entity_name=huutri231103 \
 ++log_config.wandb_project_name=stt \
-++log_config.wandb_exp_name=whisper-largev3-vietmistral-7b \
+++log_config.wandb_exp_name=wav2vec-qwen1.5b \
 ++log_config.log_interval=5 \
 "
 

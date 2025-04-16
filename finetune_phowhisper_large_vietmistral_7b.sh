@@ -20,7 +20,7 @@ output_dir=/tmp/whisper-largev3-vietmistral-7b$(date +"%Y%m%d")
 
 hydra_args="
 hydra.run.dir=$output_dir \
-++model_config.llm_name=vietmistral-7b \
+++model_config.llm_name=qwen2.5-3b \
 ++model_config.llm_path=$llm_path \
 ++model_config.llm_dim=2048 \
 ++model_config.encoder_name=wav2vec2 \

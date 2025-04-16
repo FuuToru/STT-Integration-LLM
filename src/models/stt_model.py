@@ -14,8 +14,10 @@ from src.utils.train_utils import print_module_size, print_model_size
 from peft import PeftModel, PeftConfig
 from torch.nn import CrossEntropyLoss
 from src.utils.metric import compute_wer
-
+from accelerate import init_empty_weights, load_checkpoint_and_dispatch
+from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
 import logging
+
 logger = logging.getLogger(__name__)
 
 def model_factory(train_config, model_config, **kwargs):
@@ -96,68 +98,54 @@ def setup_encoder(train_config, model_config, **kwargs):
 
 
 def setup_llm(train_config, model_config, **kwargs):
-    from pkg_resources import packaging
     use_cache = False if train_config.enable_fsdp or train_config.enable_ddp else None
+    rank = int(os.environ["RANK"])
+
     if (train_config.enable_fsdp or train_config.enable_ddp) and train_config.low_cpu_fsdp:
-        """
-        for FSDP, we can save cpu memory by loading pretrained model on rank0 only.
-        this avoids cpu oom when loading large models like llama 70B, in which case
-        model alone would consume 2+TB cpu mem (70 * 4 * 8). This will add some comms
-        overhead and currently requires latest nightly.
-        """
-        # v = packaging.version.parse(torch.__version__)
-        # verify_latest_nightly = v.is_devrelease and v.dev >= 20230701
-        # if not verify_latest_nightly:
-        #     raise Exception("latest pytorch nightly build is required to run with low_cpu_fsdp config, "
-        #                     "please install latest nightly.")
-        rank = int(os.environ["RANK"])
-        print("rank: ", rank)
-        if rank == 0:
-            model = AutoModelForCausalLM.from_pretrained(
-                model_config.llm_path,
-                token="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",
-                torch_dtype=torch.bfloat16,
-                device_map="cpu",
-                use_cache=use_cache,
-            )
-        else:
-            llama_config = AutoConfig.from_pretrained(model_config.llm_path, token="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", torch_dtype=torch.bfloat16, device_map="cpu")
-            llama_config.use_cache = use_cache
-            # with torch.device("meta"):
-            model = AutoModelForCausalLM.from_config(llama_config) #(FIX:MZY): torch 2.0.1 does not support `meta`
+        logger.info(f"[rank {rank}] loading LLM with low_cpu_fsdp using Accelerate")
+
+        # Load config
+        config = AutoConfig.from_pretrained(model_config.llm_path, token="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")
+        config.use_cache = use_cache
+
+        with init_empty_weights():
+            model = AutoModelForCausalLM.from_config(config, trust_remote_code=True)
+
+        model = load_checkpoint_and_dispatch(
+            model,
+            model_config.llm_path,
+            device_map={"": torch.cuda.current_device()},
+            no_split_module_classes=["MistralDecoderLayer"],
+            dtype=torch.bfloat16 if fsdp_config.pure_bf16 else torch.float16,
+        )
 
     else:
         model = AutoModelForCausalLM.from_pretrained(
             model_config.llm_path,
             token="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",
             torch_dtype=torch.bfloat16,
-            device_map="cpu",
+            device_map="cuda" if torch.cuda.is_available() else "cpu",
             use_cache=use_cache,
         )
+
+    # Apply optimizations
     if (train_config.enable_fsdp or train_config.enable_ddp) and train_config.use_fast_kernels:
-        """
-        For FSDP and FSDP+PEFT, setting 'use_fast_kernels' will enable
-        using of Flash Attention or Xformer memory-efficient kernels
-        based on the hardware being used. This would speed up fine-tuning.
-        """
         try:
             from optimum.bettertransformer import BetterTransformer
             model = BetterTransformer.transform(model)
         except ImportError:
-            logger.warning("Module 'optimum' not found. Please install 'optimum' it before proceeding.")
+            logger.warning("Module 'optimum' not found. Please install 'optimum'")
 
-    print_module_size(model, model_config.llm_name, int(os.environ["RANK"]) if train_config.enable_fsdp or train_config.enable_ddp else 0)
-
-    # Prepare the model for int8 training if quantization is enabled
+    # Quantization / PEFT / Freeze
     if train_config.quantization:
         model = prepare_model_for_kbit_training(model)
 
-    if train_config.freeze_llm: # TODO:to test offical `freeze_layers` and `num_freeze_layers`
-        for name, param in model.named_parameters(): 
+    if train_config.freeze_llm:
+        for param in model.parameters():
             param.requires_grad = False
         model.eval()
-        
-    if kwargs.get("peft_ckpt", None): # (FIX:MZY):reload will get wrong results when decoding
+
+    if kwargs.get("peft_ckpt", None):
         logger.info("loading peft_ckpt from: {}".format(kwargs.get("peft_ckpt")))
         model = PeftModel.from_pretrained(model=model, model_id=kwargs.get("peft_ckpt"), is_trainable=True)
         model.print_trainable_parameters()
@@ -167,7 +155,7 @@ def setup_llm(train_config, model_config, **kwargs):
         model = get_peft_model(model, peft_config)
         model.print_trainable_parameters()
 
-    print_module_size(model, model_config.llm_name, int(os.environ["RANK"]) if train_config.enable_fsdp or train_config.enable_ddp else 0)
+    print_module_size(model, model_config.llm_name, rank)
     return model
 
 def setup_encoder_projector(train_config, model_config, **kwargs):

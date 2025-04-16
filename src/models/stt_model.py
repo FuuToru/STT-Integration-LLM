@@ -121,7 +121,7 @@ def setup_llm(train_config, model_config, **kwargs):
                 use_cache=use_cache,
             )
         else:
-            llama_config = AutoConfig.from_pretrained(model_config.llm_path)
+            llama_config = AutoConfig.from_pretrained(model_config.llm_path, token="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", torch_dtype=torch.bfloat16, device_map="cpu")
             llama_config.use_cache = use_cache
             # with torch.device("meta"):
             model = AutoModelForCausalLM.from_config(llama_config) #(FIX:MZY): torch 2.0.1 does not support `meta`

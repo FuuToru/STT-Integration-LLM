@@ -116,7 +116,7 @@ def setup_llm(train_config, model_config, **kwargs):
             model_config.llm_path,
             device_map={"": torch.cuda.current_device()},
             no_split_module_classes=["MistralDecoderLayer"],
-            dtype=torch.bfloat16 if fsdp_config.pure_bf16 else torch.float16,
+            dtype=torch.bfloat16,
         )
 
     else:

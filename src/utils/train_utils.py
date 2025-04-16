@@ -92,7 +92,7 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
         with MemoryTrace() as memtrace:  # track the memory usage
             model.train()
             total_loss = 0.0
-            total_acc = 0.0
+            total_wer = 0.0
             total_length = len(train_dataloader)//gradient_accumulation_steps
             pbar = tqdm(colour="blue", desc=f"Training Epoch: {epoch+1}", total=total_length, dynamic_ncols=True)
             for step, batch in enumerate(train_dataloader):
@@ -309,9 +309,9 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
         # Reducing total_loss across all devices if there's more than one CUDA device
         if torch.cuda.device_count() > 1 and (train_config.enable_fsdp or train_config.enable_ddp):
             dist.all_reduce(total_loss, op=dist.ReduceOp.SUM)
-            dist.all_reduce(total_acc, op=dist.ReduceOp.SUM)
+            dist.all_reduce(total_wer, op=dist.ReduceOp.SUM)
         train_epoch_loss = total_loss / len(train_dataloader)
-        train_epoch_wer = total_acc / len(train_dataloader)
+        train_epoch_wer = total_wer / len(train_dataloader)
         if train_config.enable_fsdp or train_config.enable_ddp:
             train_epoch_loss = train_epoch_loss/world_size
             train_epoch_wer = train_epoch_wer/world_size

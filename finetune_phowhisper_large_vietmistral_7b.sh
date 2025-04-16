@@ -12,7 +12,7 @@ export OMP_NUM_THREADS=1
 code_dir=$(pwd)/scripts
 
 speech_encoder_path=nguyenvulebinh/wav2vec2-base-vietnamese-250h
-llm_path=/root/.cache/huggingface/hub/models--Viet-Mistral--Vistral-7B-Chat/snapshots/d331b64e61b935cc43c2b3010ae9fb4fde599b45
+llm_path=Qwen/Qwen2.5-3B
 train_data_path=/kaggle/input/vivos-2025/vivos/vivos_train.jsonl
 val_data_path=/kaggle/input/vivos-2025/vivos/vivos_test.jsonl
 
@@ -22,7 +22,7 @@ hydra_args="
 hydra.run.dir=$output_dir \
 ++model_config.llm_name=vietmistral-7b \
 ++model_config.llm_path=$llm_path \
-++model_config.llm_dim=4096 \
+++model_config.llm_dim=2048 \
 ++model_config.encoder_name=wav2vec2 \
 ++model_config.encoder_projector_ds_rate=5 \
 ++model_config.encoder_path=$speech_encoder_path \

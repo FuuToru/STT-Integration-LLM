@@ -114,7 +114,8 @@ def setup_llm(train_config, model_config, **kwargs):
         model = load_checkpoint_and_dispatch(
             model,
             model_config.llm_path,
-            device_map={"": torch.cuda.current_device()},
+            device_map = {"": rank},
+            max_memory = {rank: "8GiB"},
             no_split_module_classes=["MistralDecoderLayer"],
             dtype=torch.bfloat16 ,
         )

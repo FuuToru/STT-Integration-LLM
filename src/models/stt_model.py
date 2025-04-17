@@ -116,12 +116,12 @@ def setup_llm(train_config, model_config, **kwargs):
             model = AutoModelForCausalLM.from_pretrained(
                 model_config.llm_path,
                 # token="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",
-                # torch_dtype=torch.bfloat16,
-                device_map="cpu",
+                torch_dtype=torch.bfloat16,
+                device_map="auto",
                 use_cache=use_cache,
             )
         else:
-            llama_config = AutoConfig.from_pretrained(model_config.llm_path, device_map="cpu")
+            llama_config = AutoConfig.from_pretrained(model_config.llm_path,torch_dtype=torch.bfloat16, device_map="auto")
             llama_config.use_cache = use_cache
             # with torch.device("meta"):
             model = AutoModelForCausalLM.from_config(llama_config) #(FIX:MZY): torch 2.0.1 does not support `meta`
@@ -130,8 +130,8 @@ def setup_llm(train_config, model_config, **kwargs):
         model = AutoModelForCausalLM.from_pretrained(
             model_config.llm_path,
             # token="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",
-            # torch_dtype=torch.bfloat16,
-            device_map="cpu",
+            torch_dtype=torch.bfloat16,
+            device_map="auto",
             use_cache=use_cache,
         )
     if (train_config.enable_fsdp or train_config.enable_ddp) and train_config.use_fast_kernels:

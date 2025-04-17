@@ -29,7 +29,7 @@ from src.utils.checkpoint_handler import (
 from src.policies.mixed_precision import fpSixteen,bfSixteen_mixed
 from src.policies.wrapping import get_llama_wrapper
 from src.utils.memory_utils import MemoryTrace
-from src.utils.metric import compute_wer
+from src.utils.metric import compute_wer, clean_text
 
 import wandb
 import logging
@@ -118,6 +118,9 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
                     label_ids = batch["labels"][0].detach().cpu()
                     logits = outputs.logits.detach().cpu()
                     pred_ids = logits.argmax(dim=-1)[0]
+                    
+                    logger.info(f"\nlabel_ids: {label_ids}")
+                    logger.info(f"\npred_ids: {pred_ids}")
 
                     # Mask để bỏ các vị trí -100
                     valid_mask = label_ids != -100
@@ -129,10 +132,15 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
                     label_text = tokenizer.decode(masked_label_ids, skip_special_tokens=True)
                     pred_text = tokenizer.decode(masked_pred_ids, skip_special_tokens=True)
 
+                    # Clean text
+                    label_text_clean = clean_text(label_text)
+                    pred_text_clean = clean_text(pred_text)
+
                     logger.info(f"\n[Sample Output | Epoch {epoch+1} | Step {step}]")
                     logger.info(f"\nInput Text     : {input_text}")
-                    logger.info(f"\nGround Truth   : {label_text}")
-                    logger.info(f"\nPredicted Text : {pred_text}")
+                    logger.info(f"\nGround Truth   : {label_text_clean}")
+                    logger.info(f"\nPredicted Text : {pred_text_clean}")
+
 
 
                 loss = loss / gradient_accumulation_steps
@@ -442,20 +450,27 @@ def evaluation(model,train_config, eval_dataloader, local_rank, tokenizer):
                     label_ids = batch["labels"][0].detach().cpu()
                     logits = outputs.logits.detach().cpu()
                     pred_ids = logits.argmax(dim=-1)[0]
+                    
+                    logger.info(f"\nlabel_ids: {label_ids}")
+                    logger.info(f"\npred_ids: {pred_ids}")
 
                     # Mask để bỏ các vị trí -100
                     valid_mask = label_ids != -100
                     masked_label_ids = label_ids[valid_mask]
                     masked_pred_ids = pred_ids[valid_mask]
+                    
 
                     # Decode
                     input_text = tokenizer.decode(input_ids, skip_special_tokens=True)
                     label_text = tokenizer.decode(masked_label_ids, skip_special_tokens=True)
                     pred_text = tokenizer.decode(masked_pred_ids, skip_special_tokens=True)
+                    
+                    label_text_clean = clean_text(label_text)
+                    pred_text_clean = clean_text(pred_text)
 
                     logger.info(f"\nInput Text     : {input_text}")
-                    logger.info(f"\nGround Truth   : {label_text}")
-                    logger.info(f"\nPredicted Text : {pred_text}")
+                    logger.info(f"\nGround Truth   : {label_text_clean}")
+                    logger.info(f"\nPredicted Text : {pred_text_clean}")
 
                 eval_loss += loss.detach().float()
                 eval_wer += wer

@@ -45,7 +45,7 @@ class WhisperWrappedEncoder:
 class Wav2Vec2WrappedEncoder(nn.Module):
     def __init__(self, model_path):
         super().__init__()
-        self.model = Wav2Vec2Model.from_pretrained(model_path, device_map="auto")
+        self.model = Wav2Vec2Model.from_pretrained(model_path)
 
     def forward(self, input_values, attention_mask=None):
         outputs = self.model(input_values=input_values, attention_mask=attention_mask)

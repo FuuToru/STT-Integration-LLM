@@ -71,5 +71,6 @@ else
         ++train_config.enable_fsdp=true \
         ++train_config.enable_ddp=false \
         ++train_config.low_cpu_fsdp=true \
+        ++fsdp_config.pure_bf16=true \
         $hydra_args
 fi

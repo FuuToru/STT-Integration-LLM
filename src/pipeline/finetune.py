@@ -181,6 +181,7 @@ def main(kwargs: DictConfig):
     # # Convert the model to bfloat16 if fsdp and pure_bf16 is enabled
     if (train_config.enable_fsdp or train_config.enable_ddp) and fsdp_config.pure_bf16:
         model.to(torch.bfloat16)
+        inspect_tensor_types(model)
 
     #setting up FSDP if enable_fsdp is enabled
     if train_config.enable_fsdp:

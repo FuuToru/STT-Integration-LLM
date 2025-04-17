@@ -14,7 +14,7 @@ export WANDB_API_KEY=879f22e33e82b78fdf67aa394cf6620c24340a4c
 code_dir=$(pwd)/scripts
 
 speech_encoder_path=nguyenvulebinh/wav2vec2-base-vietnamese-250h
-llm_path=Qwen/Qwen2.5-1.5B
+llm_path=Qwen/Qwen2.5-3B
 train_data_path=/kaggle/input/vivos-2025/vivos/vivos_train.jsonl
 val_data_path=/kaggle/input/vivos-2025/vivos/vivos_test.jsonl
 
@@ -24,7 +24,7 @@ hydra_args="
 hydra.run.dir=$output_dir \
 ++model_config.llm_name=qwen2.5-1.5b \
 ++model_config.llm_path=$llm_path \
-++model_config.llm_dim=1536 \
+++model_config.llm_dim=2048 \
 ++model_config.encoder_name=wav2vec2 \
 ++model_config.encoder_projector_ds_rate=5 \
 ++model_config.encoder_path=$speech_encoder_path \
@@ -70,7 +70,7 @@ else
         $code_dir/finetune.py \
         ++train_config.enable_fsdp=true \
         ++train_config.enable_ddp=false \
-        ++fsdp_config.pure_bf16=true \
-        ++train_config.low_cpu_fsdp=true \
+        ++fsdp_config.pure_bf16=fasle \
+        ++train_config.low_cpu_fsdp=false \
         $hydra_args
 fi

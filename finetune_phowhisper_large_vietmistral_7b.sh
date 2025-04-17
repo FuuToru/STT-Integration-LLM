@@ -1,6 +1,6 @@
 #!/bin/bash
 export PYTHONPATH=$(pwd):$PYTHONPATH
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=0,1
 export TOKENIZERS_PARALLELISM=false
 export OMP_NUM_THREADS=1
 

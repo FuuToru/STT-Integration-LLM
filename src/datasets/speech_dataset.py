@@ -13,7 +13,6 @@ from torch.utils.data import Dataset
 import whisper
 
 class SpeechDatasetJsonl(torch.utils.data.Dataset):
-    e
     def __init__(self,
                  dataset_config,
                  tokenizer=None,

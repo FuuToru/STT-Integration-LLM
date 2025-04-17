@@ -48,5 +48,6 @@ class Wav2Vec2WrappedEncoder(nn.Module):
         self.model = Wav2Vec2Model.from_pretrained(model_path)
 
     def forward(self, input_values, attention_mask=None):
+        input_values = input_values.to(torch.bfloat16)
         outputs = self.model(input_values=input_values, attention_mask=attention_mask)
         return outputs.last_hidden_state  # hoặc pooled output nếu cần

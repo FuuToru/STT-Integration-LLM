@@ -315,6 +315,8 @@ class stt_model(nn.Module):
         if kwargs.get("inference_mode", False):
             return inputs_embeds, attention_mask
 
+        logger.info(f"labels: {labels}")
+        logger.info(f"Decode: {self.tokenizer.decode(labels, skip_special_tokens=True)}")
 
         model_outputs = self.llm(inputs_embeds=inputs_embeds, attention_mask=attention_mask, labels=labels)
         wer = -1

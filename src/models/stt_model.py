@@ -314,9 +314,19 @@ class stt_model(nn.Module):
 
         if kwargs.get("inference_mode", False):
             return inputs_embeds, attention_mask
-
-        logger.info(f"labels: {labels}")
-        logger.info(f"Decode: {self.tokenizer.decode(labels, skip_special_tokens=True)}")
+        if labels is not None:
+            ignore_ids = {-100, self.tokenizer.pad_token_id}
+            batch_filtered = []
+            batch_decoded = []
+            # iterate each sequence in batch
+            for seq in labels:
+                label_ids = seq.cpu().tolist()
+                filtered = [tok for tok in label_ids if tok not in ignore_ids]
+                decoded = self.tokenizer.decode(filtered, skip_special_tokens=True)
+                batch_filtered.append(filtered)
+                batch_decoded.append(decoded)
+            logger.info(f"Batch Labels IDs: {batch_filtered}")
+            logger.info(f"Batch Decoded labels: {batch_decoded}")
 
         model_outputs = self.llm(inputs_embeds=inputs_embeds, attention_mask=attention_mask, labels=labels)
         wer = -1

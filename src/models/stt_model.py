@@ -130,7 +130,7 @@ def setup_llm(train_config, model_config, **kwargs):
         model = AutoModelForCausalLM.from_pretrained(
             model_config.llm_path,
             # token="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",
-            torch_dtype=torch.bfloat16,
+            # torch_dtype=torch.bfloat16,
             device_map=None,
             use_cache=use_cache,
         )

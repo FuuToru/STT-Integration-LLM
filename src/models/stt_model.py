@@ -314,19 +314,19 @@ class stt_model(nn.Module):
 
         if kwargs.get("inference_mode", False):
             return inputs_embeds, attention_mask
-        if labels is not None:
-            ignore_ids = {-100, self.tokenizer.pad_token_id}
-            batch_filtered = []
-            batch_decoded = []
-            # iterate each sequence in batch
-            for seq in labels:
-                label_ids = seq.cpu().tolist()
-                filtered = [tok for tok in label_ids if tok not in ignore_ids]
-                decoded = self.tokenizer.decode(filtered, skip_special_tokens=True)
-                logger.info(f"Labels IDs: {label_ids}")
-                logger.info(f"Decoded labels: {decoded}")
-                batch_filtered.append(filtered)
-                batch_decoded.append(decoded)
+        # if labels is not None:
+        #     ignore_ids = {-100, self.tokenizer.pad_token_id}
+        #     batch_filtered = []
+        #     batch_decoded = []
+        #     # iterate each sequence in batch
+        #     for seq in labels:
+        #         label_ids = seq.cpu().tolist()
+        #         filtered = [tok for tok in label_ids if tok not in ignore_ids]
+        #         decoded = self.tokenizer.decode(filtered, skip_special_tokens=True)
+        #         logger.info(f"Labels IDs: {label_ids}")
+        #         logger.info(f"Decoded labels: {decoded}")
+        #         batch_filtered.append(filtered)
+        #         batch_decoded.append(decoded)
             
             
 

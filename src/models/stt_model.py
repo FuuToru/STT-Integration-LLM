@@ -323,7 +323,7 @@ class stt_model(nn.Module):
                 label_ids = seq.cpu().tolist()
                 filtered = [tok for tok in label_ids if tok not in ignore_ids]
                 decoded = self.tokenizer.decode(filtered, skip_special_tokens=True)
-                logger.info(f"Labels IDs: {filtered}")
+                logger.info(f"Labels IDs: {label_ids}")
                 logger.info(f"Decoded labels: {decoded}")
                 batch_filtered.append(filtered)
                 batch_decoded.append(decoded)

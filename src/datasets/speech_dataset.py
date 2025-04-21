@@ -110,34 +110,33 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         if prompt is None:
             prompt = "Chuyển lời nói thành văn bản."
         prompt = self.prompt_template.format(prompt)
-
         answer = self.answer_template.format(target)
 
-        # --- Encode Prompt & Answer separately ---
+        # --- Encode Prompt & Answer ---
         prompt_ids = self.tokenizer.encode(prompt, add_special_tokens=False)
-        answer_ids = self.tokenizer.encode(answer, add_special_tokens=False)
-        example_ids = prompt_ids + answer_ids + [self.tokenizer.eos_token_id]
+        answer_ids = [self.tokenizer.bos_token_id] + self.tokenizer.encode(answer, add_special_tokens=False)
+        answer_ids.append(self.tokenizer.eos_token_id)
 
         prompt_length = len(prompt_ids)
+        full_ids = prompt_ids + answer_ids  # full = [prompt, bos, answer, eos]
 
-        example_ids = torch.tensor(example_ids, dtype=torch.int64)
+        example_ids = torch.tensor(full_ids, dtype=torch.int64)
         example_ids = torch.cat((audio_pseudo, example_ids))
 
-        # --- Mask ---
+        # --- Labels ---
         labels_ids = copy.deepcopy(example_ids)
-        labels_ids[:audio_length + prompt_length] = -1
-
+        labels_ids[:audio_length + prompt_length] = -1  # mask audio + prompt (before bos)
+        
         example_mask = example_ids.ge(-1)
         label_mask = labels_ids.ge(0)
 
         example_ids[~example_mask] = 0
         labels_ids[~label_mask] = self.IGNORE_INDEX
-
         # --- Debugging ---
-        # print("🔹 Prompt:", prompt)
-        # print("🔹 Answer:", answer)
-        # print("🔹 Decoded full input:", self.tokenizer.decode(example_ids[audio_length:], skip_special_tokens=True))
-        # print("🔹 Label decode:", self.tokenizer.decode(labels_ids[labels_ids != self.IGNORE_INDEX]))
+        print("🔹 Prompt:", prompt)
+        print("🔹 Answer:", answer)
+        print("🔹 Decoded full input:", self.tokenizer.decode(example_ids[audio_length:], skip_special_tokens=True))
+        print("🔹 Label decode:", self.tokenizer.decode(labels_ids[labels_ids != self.IGNORE_INDEX]))
 
         return {
             "input_ids": example_ids,
@@ -150,6 +149,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
             "key": key,
             "target": target,
         }
+
 
 
 

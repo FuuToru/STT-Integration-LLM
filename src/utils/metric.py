@@ -39,10 +39,10 @@ def compute_wer(tokenizer, pad_outputs, pad_targets, ignore_label):
         masked_targets.append(valid_target)
 
     pred_texts = tokenizer.batch_decode(masked_outputs, skip_special_tokens=True)
-    print("PREDCIT", pred_texts)
+    # print("PREDCIT", pred_texts)
     
     target_texts = tokenizer.batch_decode(masked_targets, skip_special_tokens=True)
-    print("TARGET", target_texts)
+    # print("TARGET", target_texts)
 
     total_wer = 0.0
     for pred, ref in zip(pred_texts, target_texts):

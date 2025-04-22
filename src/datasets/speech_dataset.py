@@ -122,7 +122,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
 
         print("🔹 Prompt:", prompt)
         print("🔹 Answer:", answer)
-        print("🔹 Decoded full input:", self.tokenizer.decode(example_ids[audio_length:], skip_special_tokens=True))
+        print("🔹 Decoded full input:", self.tokenizer.decode(example_ids, skip_special_tokens=False))
 
         example_ids = torch.tensor(example_ids, dtype=torch.int64)
         example_ids = torch.cat((audio_pseudo, example_ids))

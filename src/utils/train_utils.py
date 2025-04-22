@@ -130,16 +130,13 @@ def train(model, train_dataloader, eval_dataloader, tokenizer, optimizer, lr_sch
                     # Decode
                     input_text = tokenizer.decode(input_ids, skip_special_tokens=True)
                     label_text = tokenizer.decode(masked_label_ids, skip_special_tokens=True)
-                    pred_text = tokenizer.decode(masked_pred_ids, skip_special_tokens=True)
+                    pred_text = tokenizer.decode(masked_pred_ids[:-1], skip_special_tokens=True)
 
-                    # Clean text
-                    label_text_clean = clean_text(label_text)
-                    pred_text_clean = clean_text(pred_text)
 
                     logger.info(f"\n[Sample Output | Epoch {epoch+1} | Step {step}]")
                     logger.info(f"\nInput Text     : {input_text}")
-                    logger.info(f"\nGround Truth   : {label_text_clean}")
-                    logger.info(f"\nPredicted Text : {pred_text_clean}")
+                    logger.info(f"\nGround Truth   : {label_text}")
+                    logger.info(f"\nPredicted Text : {pred_text}")
 
 
 
@@ -463,14 +460,12 @@ def evaluation(model,train_config, eval_dataloader, local_rank, tokenizer):
                     # Decode
                     input_text = tokenizer.decode(input_ids, skip_special_tokens=True)
                     label_text = tokenizer.decode(masked_label_ids, skip_special_tokens=True)
-                    pred_text = tokenizer.decode(masked_pred_ids, skip_special_tokens=True)
+                    pred_text = tokenizer.decode(masked_pred_ids[:-1], skip_special_tokens=True)
                     
-                    label_text_clean = clean_text(label_text)
-                    pred_text_clean = clean_text(pred_text)
 
                     logger.info(f"\nInput Text     : {input_text}")
-                    logger.info(f"\nGround Truth   : {label_text_clean}")
-                    logger.info(f"\nPredicted Text : {pred_text_clean}")
+                    logger.info(f"\nGround Truth   : {label_text}")
+                    logger.info(f"\nPredicted Text : {pred_text}")
 
                 eval_loss += loss.detach().float()
                 eval_wer += wer

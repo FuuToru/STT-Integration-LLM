@@ -18,7 +18,7 @@ llm_path=Qwen/Qwen2.5-1.5B
 train_data_path=/kaggle/input/vivos-2025/vivos/vivos_train.jsonl
 val_data_path=/kaggle/input/vivos-2025/vivos/vivos_test.jsonl
 
-output_dir=/tmp/whisper-largev3-vietmistral-7b$(date +"%Y%m%d")
+output_dir=/kaggle/working/wav2vec2-qwen1.5b$(date +"%Y%m%d")
 
 hydra_args="
 hydra.run.dir=$output_dir \

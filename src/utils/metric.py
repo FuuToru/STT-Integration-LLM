@@ -2,16 +2,6 @@ import re
 from jiwer import wer
 import torch
 
-def clean_text(text):
-    """
-    Clean prediction text by removing 'Human' at the end or '**'.
-    """
-    # Remove 'Human' at the end (with or without punctuation)
-    text = re.sub(r'(?:\s*Human[\s\.\!\?]*)$', '', text)
-    # Remove ** anywhere in the sentence
-    text = re.sub(r'\*\*', '', text)
-    # Remove redundant whitespace
-    return text.strip()
 
 def compute_wer(tokenizer, pad_outputs, pad_targets, ignore_label):
     """
@@ -35,7 +25,7 @@ def compute_wer(tokenizer, pad_outputs, pad_targets, ignore_label):
         valid_output = pad_outputs[i][mask[i]].tolist()
         valid_target = pad_targets[i][mask[i]].tolist()
 
-        masked_outputs.append(valid_output)
+        masked_outputs.append(valid_output[:-1])
         masked_targets.append(valid_target)
 
     pred_texts = tokenizer.batch_decode(masked_outputs, skip_special_tokens=True)
@@ -46,8 +36,6 @@ def compute_wer(tokenizer, pad_outputs, pad_targets, ignore_label):
 
     total_wer = 0.0
     for pred, ref in zip(pred_texts, target_texts):
-        cleaned_pred = clean_text(pred)
-        cleaned_ref = clean_text(ref)
-        total_wer += wer(cleaned_ref, cleaned_pred)
+        total_wer += wer(ref, pred)
 
     return total_wer / len(pred_texts) if pred_texts else 0.0

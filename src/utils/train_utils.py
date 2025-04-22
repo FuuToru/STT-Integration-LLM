@@ -29,7 +29,7 @@ from src.utils.checkpoint_handler import (
 from src.policies.mixed_precision import fpSixteen,bfSixteen_mixed
 from src.policies.wrapping import get_llama_wrapper
 from src.utils.memory_utils import MemoryTrace
-from src.utils.metric import compute_wer, clean_text
+from src.utils.metric import compute_wer
 
 import wandb
 import logging

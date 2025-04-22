@@ -134,10 +134,10 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         labels_ids[~label_mask] = self.IGNORE_INDEX
 
         # --- Debugging ---
-        # print("🔹 Prompt:", prompt)
-        # print("🔹 Answer:", answer)
-        # print("🔹 Decoded full input:", self.tokenizer.decode(example_ids[audio_length:], skip_special_tokens=True))
-        # print("🔹 Label decode:", self.tokenizer.decode(labels_ids[labels_ids != self.IGNORE_INDEX]))
+        print("🔹 Prompt:", prompt)
+        print("🔹 Answer:", answer)
+        print("🔹 Decoded full input:", self.tokenizer.decode(example_ids[audio_length:], skip_special_tokens=True))
+        print("🔹 Label decode:", self.tokenizer.decode(labels_ids[labels_ids != self.IGNORE_INDEX]))
 
         return {
             "input_ids": example_ids,

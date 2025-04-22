@@ -116,13 +116,13 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         # --- Encode Prompt & Answer separately ---
         prompt_ids = self.tokenizer.encode(prompt, add_special_tokens=False)
         answer_ids = self.tokenizer.encode(answer, add_special_tokens=False)
-        example_ids = prompt_ids + answer_ids + [self.tokenizer.eos_token_id]
+        example_ids = prompt_ids + [self.tokenizer.eos_token_id] + answer_ids
 
         prompt_length = len(prompt_ids)
 
-        print("🔹 Prompt:", prompt)
-        print("🔹 Answer:", answer)
-        print("🔹 Decoded full input:", self.tokenizer.decode(example_ids, skip_special_tokens=False))
+        # print("🔹 Prompt:", prompt)
+        # print("🔹 Answer:", answer)
+        # print("🔹 Decoded full input:", self.tokenizer.decode(example_ids, skip_special_tokens=False))
 
         example_ids = torch.tensor(example_ids, dtype=torch.int64)
         example_ids = torch.cat((audio_pseudo, example_ids))
@@ -138,7 +138,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         labels_ids[~label_mask] = self.IGNORE_INDEX
 
         # --- Debugging ---
-        print("🔹 Label decode:", self.tokenizer.decode(labels_ids[labels_ids != self.IGNORE_INDEX]))
+        # print("🔹 Label decode:", self.tokenizer.decode(labels_ids[labels_ids != self.IGNORE_INDEX]))
 
         return {
             "input_ids": example_ids,

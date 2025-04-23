@@ -17,7 +17,7 @@ speech_encoder_path=nguyenvulebinh/wav2vec2-base-vietnamese-250h
 llm_path=Qwen/Qwen2.5-1.5B
 train_data_path=/kaggle/input/common-voice-2025/common_voice_vi_export/train/metadata.jsonl
 val_data_path=/kaggle/input/common-voice-2025/common_voice_vi_export/test/metadata.jsonl
-
+/kaggle/input/common-voice-2025/common_voice_vi_export/train/audio/other_00029.wav
 output_dir=/kaggle/working/wav2vec2-qwen1.5b$(date +"%Y%m%d")
 
 hydra_args="

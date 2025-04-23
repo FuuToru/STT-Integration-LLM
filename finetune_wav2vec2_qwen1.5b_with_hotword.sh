@@ -58,7 +58,7 @@ hydra.run.dir=$output_dir \
 ++log_config.wandb_dir=$output_dir \
 ++log_config.wandb_entity_name=huutri231103 \
 ++log_config.wandb_project_name=stt \
-++log_config.wandb_exp_name=wav2vec-qwen1.5b_with_hotword \
+++log_config.wandb_exp_name=wav2vec-qwen1.5b_with_hotword$(date +"%Y%m%d") \
 ++log_config.log_interval=5 \
 "
 

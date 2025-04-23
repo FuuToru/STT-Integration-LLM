@@ -172,10 +172,10 @@ class HotwordsDataset(torch.utils.data.Dataset):
                 label_mask = labels_ids.ge(0)  # [False,False,True,True]
                 example_ids[~example_mask] = 0  # [audio,prompt,answer,eos]
                 labels_ids[~label_mask] = self.IGNORE_INDEX  # [-100,-100,answer,eos]
-                print("🔹 Prompt:", prompt)
-                print("🔹 Answer:", answer)
-                print("🛠️ Raw example_ids:", example_ids)
-                print("🔹 Decoded full input:", self.tokenizer.decode(example_ids, skip_special_tokens=False))
+                # print("🔹 Prompt:", prompt)
+                # print("🔹 Answer:", answer)
+                # print("🛠️ Raw example_ids:", example_ids)
+                # print("🔹 Decoded full input:", self.tokenizer.decode(labels_ids, skip_special_tokens=False))
 
                 samples[i]["input_ids"] = example_ids
                 samples[i]["labels"] = labels_ids

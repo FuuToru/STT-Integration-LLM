@@ -9,7 +9,7 @@ import torch
 import torchaudio
 from torch.utils.data import Dataset
 import whisper
-from slam_llm.utils.compute_utils import calculate_output_length_1d
+from src.utils.compute_utils import calculate_output_length_1d
 
 
 class HotwordsDataset(torch.utils.data.Dataset):

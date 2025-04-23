@@ -15,8 +15,8 @@ code_dir=$(pwd)/scripts
 
 speech_encoder_path=nguyenvulebinh/wav2vec2-base-vietnamese-250h
 llm_path=Qwen/Qwen2.5-1.5B
-train_data_path=/kaggle/input/vivos-2025/vivos/vivos_train.jsonl
-val_data_path=/kaggle/input/vivos-2025/vivos/vivos_test.jsonl
+train_data_path=/kaggle/input/common-voice-2025/common_voice_vi_export/train/metadata.jsonl
+val_data_path=/kaggle/input/common-voice-2025/common_voice_vi_export/test/metadata.jsonl
 
 output_dir=/kaggle/working/wav2vec2-qwen1.5b$(date +"%Y%m%d")
 
@@ -29,7 +29,7 @@ hydra.run.dir=$output_dir \
 ++model_config.encoder_projector_ds_rate=5 \
 ++model_config.encoder_path=$speech_encoder_path \
 ++model_config.encoder_dim=768 \
-++model_config.encoder_projector=cov1d-linear \
+++model_config.encoder_projector=linear \
 ++model_config.normalize=true \
 ++dataset_config.normalize=true \
 ++dataset_config.dataset=speech_dataset \
@@ -38,12 +38,12 @@ hydra.run.dir=$output_dir \
 ++dataset_config.input_type=raw \
 ++dataset_config.mel_size=128 \
 ++train_config.model_name=asr \
-++train_config.num_epochs=15 \
+++train_config.num_epochs=10 \
 ++train_config.freeze_encoder=true \
 ++train_config.freeze_llm=true \
 ++train_config.batching_strategy=custom \
 ++train_config.warmup_steps=1000 \
-++train_config.total_steps=43725  \
+++train_config.total_steps=29150  \
 ++train_config.lr=1e-4 \
 ++train_config.validation_interval=1000 \
 ++train_config.batch_size_training=4 \

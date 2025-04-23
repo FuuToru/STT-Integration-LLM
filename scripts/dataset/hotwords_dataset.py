@@ -159,7 +159,7 @@ class HotwordsDataset(torch.utils.data.Dataset):
                 answer_ids = self.tokenizer.encode(answer, add_special_tokens=False)
 
                 example_ids = prompt_ids + [self.tokenizer.eos_token_id] + answer_ids
-                example_ids.append(self.tokenizer.eos_token_id)  # [prompt,answer,eos]
+                # example_ids.append(self.tokenizer.eos_token_id)  # [prompt,answer,eos]
                 example_ids = torch.tensor(
                     example_ids, dtype=torch.int64
                 )
@@ -174,6 +174,7 @@ class HotwordsDataset(torch.utils.data.Dataset):
                 labels_ids[~label_mask] = self.IGNORE_INDEX  # [-100,-100,answer,eos]
                 print("🔹 Prompt:", prompt)
                 print("🔹 Answer:", answer)
+                print("🛠️ Raw example_ids:", example_ids)
                 print("🔹 Decoded full input:", self.tokenizer.decode(example_ids, skip_special_tokens=False))
 
                 samples[i]["input_ids"] = example_ids

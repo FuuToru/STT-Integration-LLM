@@ -108,7 +108,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         # --- Prompt & Answer ---
         prompt = self.prompt
         if prompt is None:
-            prompt = "Chuyển lời nói thành văn bản."
+            prompt = "Transcribe speech to text. Output the transcription directly without redundant content. Ensure that the output is not duplicated. "
         prompt = self.prompt_template.format(prompt)
 
         answer = self.answer_template.format(target)

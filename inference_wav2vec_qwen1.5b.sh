@@ -30,7 +30,7 @@ python $code_dir/inference.py \
         ++dataset_config.val_data_path=$val_data_path \
         ++dataset_config.input_type=raw \
         ++dataset_config.mel_size=128 \
-        ++dataset_config.inference_mode=true \
+        ++dataset_config.inference_mode=false \
         ++train_config.model_name=asr \
         ++train_config.freeze_encoder=true \
         ++train_config.freeze_llm=true \

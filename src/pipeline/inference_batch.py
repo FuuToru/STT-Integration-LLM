@@ -3,7 +3,7 @@ import random
 import torch
 import logging
 # import argparse
-from src.models.stt_model import slam_model
+from src.models.stt_model import stt_model
 # config
 # from llama_recipes.configs import fsdp_config as FSDP_CONFIG
 # from llama_recipes.configs import train_config as TRAIN_CONFIG

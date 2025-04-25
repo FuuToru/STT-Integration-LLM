@@ -385,7 +385,7 @@ class stt_model(nn.Module):
                 return_dict: Optional[bool] = None,
                 **kwargs,
                 ):
-        kwargs["inference_mode"] = True
+        # kwargs["inference_mode"] = True
 
         model_outputs = self.forward(
             input_ids=input_ids,

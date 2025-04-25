@@ -272,6 +272,8 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
                 input_answer_max_length - input_answer_lengths[index], self.IGNORE_INDEX)
             for index in range(len(samples))
         ])
+        keys = [s['key'] for s in samples]
+        targets = [s['target'] for s in samples]
         
         return {
             "input_ids": input_ids,
@@ -281,7 +283,9 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
             "audio_mask": audio_mask if self.input_type == "raw" else None,
             "audio_mel": audio_mel if self.input_type == "mel" else None,
             "audio_mel_post_mask": audio_mel_post_mask if self.input_type == "mel" else None,
-            "modality_mask": modality_mask
+            "modality_mask": modality_mask,
+            "keys": keys,
+            "targets": targets
         }
 
 

@@ -10,7 +10,7 @@ code_dir=$(pwd)/scripts
 speech_encoder_path=nguyenvulebinh/wav2vec2-base-vietnamese-250h
 llm_path=Qwen/Qwen2.5-1.5B
 
-output_dir=/kaggle/working
+output_dir=/kaggle/working/STT-Integration-LLM
 ckpt_path=$output_dir/wav2vec-qwen1.5b-vivos-20-4
 split=vivos_test
 val_data_path=/kaggle/input/vivos-2025/vivos/vivos_test.jsonl

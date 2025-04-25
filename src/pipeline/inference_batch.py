@@ -110,7 +110,7 @@ def main(kwargs: DictConfig):
         split="test",
     )
 	if not (train_config.enable_fsdp or train_config.enable_ddp) or rank == 0:
-		logger.info(f"--> Training Set Length = {len(dataset_test)}")
+		logger.info(f"--> Test Set Length = {len(dataset_test)}")
 
 	test_dataloader = torch.utils.data.DataLoader(
             dataset_test,

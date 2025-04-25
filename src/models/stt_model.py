@@ -313,7 +313,33 @@ class stt_model(nn.Module):
             inputs_embeds = encoder_outs_pad + inputs_embeds * (~modality_mask[:, :, None])
 
         if kwargs.get("inference_mode", False):
-            return inputs_embeds, attention_mask
+            model_outputs = self.llm(
+                inputs_embeds=inputs_embeds,
+                attention_mask=attention_mask,
+                labels=labels
+            )
+
+            preds = torch.argmax(model_outputs.logits, dim=-1)
+            pad_targets = labels
+            pad_outputs = preds
+
+            # Lọc từng sequence theo mask -100
+            mask = pad_targets != -100
+            masked_outputs, masked_targets = [], []
+
+            for i in range(pad_outputs.size(0)):
+                valid_output = pad_outputs[i][mask[i]].tolist()
+                valid_target = pad_targets[i][mask[i]].tolist()
+
+                valid_output = valid_output[:-1]  # tùy vào LLM, có thể bỏ token cuối
+                masked_outputs.append(valid_output)
+                masked_targets.append(valid_target)
+
+            pred_texts = self.tokenizer.batch_decode(masked_outputs, skip_special_tokens=True)
+            target_texts = self.tokenizer.batch_decode(masked_targets, skip_special_tokens=True)
+
+            return masked_outputs
+
         # if labels is not None:
         #     ignore_ids = {-100, self.tokenizer.pad_token_id}
         #     batch_filtered = []
@@ -355,7 +381,7 @@ class stt_model(nn.Module):
                 ):
         kwargs["inference_mode"] = True
 
-        inputs_embeds, attention_mask = self.forward(
+        model_outputs = self.forward(
             input_ids=input_ids,
             attention_mask=attention_mask,
             position_ids=position_ids,
@@ -385,16 +411,16 @@ class stt_model(nn.Module):
         #     eos_token_id=self.tokenizer.eos_token_id,
         #     pad_token_id=self.tokenizer.pad_token_id
         # )
-        model_outputs = self.llm.generate(
-            inputs_embeds=inputs_embeds,
-            attention_mask=attention_mask,
-            max_new_tokens=50,             # chỉ phép sinh tối đa 50 token
-            eos_token_id=self.tokenizer.eos_token_id,
-            pad_token_id=self.tokenizer.pad_token_id,
-            no_repeat_ngram_size=3,        # không lặp 3-gram
-            repetition_penalty=1.2,
-            early_stopping=True
-        )
+        # model_outputs = self.llm.generate(
+        #     inputs_embeds=inputs_embeds,
+        #     attention_mask=attention_mask,
+        #     max_new_tokens=50,             # chỉ phép sinh tối đa 50 token
+        #     eos_token_id=self.tokenizer.eos_token_id,
+        #     pad_token_id=self.tokenizer.pad_token_id,
+        #     no_repeat_ngram_size=3,        # không lặp 3-gram
+        #     repetition_penalty=1.2,
+        #     early_stopping=True
+        # )
 
 
         return model_outputs

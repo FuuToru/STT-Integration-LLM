@@ -385,7 +385,7 @@ class stt_model(nn.Module):
         #     eos_token_id=self.tokenizer.eos_token_id,
         #     pad_token_id=self.tokenizer.pad_token_id
         # )
-        generated = self.llm.generate(
+        model_outputs = self.llm.generate(
             input_ids=inputs_embeds,
             attention_mask=attention_mask,
             max_new_tokens=50,             # chỉ phép sinh tối đa 50 token

@@ -321,19 +321,25 @@ class stt_model(nn.Module):
 
             preds = torch.argmax(model_outputs.logits, dim=-1)
             pad_targets = labels
+            
+            print(pad_targets)
             pad_outputs = preds
 
             # Lọc từng sequence theo mask -100
-            mask = pad_targets != -100
-            masked_outputs, masked_targets = [], []
+            mask = pad_targets != -100  # [B, T]
+
+            masked_outputs = []
+            masked_targets = []
 
             for i in range(pad_outputs.size(0)):
+                # Lưu ý: mask[i] là mask cho sequence i
                 valid_output = pad_outputs[i][mask[i]].tolist()
                 valid_target = pad_targets[i][mask[i]].tolist()
 
-                valid_output = valid_output[:-1]  # tùy vào LLM, có thể bỏ token cuối
-                masked_outputs.append(valid_output)
+                # Optional: cắt token cuối nếu muốn tránh EOS ở output
+                masked_outputs.append(valid_output[:-1])
                 masked_targets.append(valid_target)
+
 
             pred_texts = self.tokenizer.batch_decode(masked_outputs, skip_special_tokens=True)
             target_texts = self.tokenizer.batch_decode(masked_targets, skip_special_tokens=True)

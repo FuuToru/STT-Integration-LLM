@@ -15,6 +15,7 @@ from src.utils.dataset_utils import get_preprocessed_dataset
 import os
 import logging
 from tqdm import tqdm
+import json
 
 import hydra
 from omegaconf import DictConfig, ListConfig, OmegaConf
@@ -124,17 +125,25 @@ def main(kwargs: DictConfig):
 	
 
 	logger.info("=====================================")
-	pred_path = kwargs.get('decode_log') + "_pred"
-	gt_path = kwargs.get('decode_log') + "_gt"
-	with open(pred_path, "w") as pred, open(gt_path, "w") as gt:
+	output_path = kwargs.get('decode_log') + ".jsonl"
+
+	with open(output_path, "w") as outfile:
 		for step, batch in tqdm(enumerate(test_dataloader), total=len(test_dataloader)):
 			for key in batch.keys():
 				batch[key] = batch[key].to(device) if isinstance(batch[key], torch.Tensor) else batch[key]
+			
 			model_outputs = model.generate(**batch)
-			output_text = model.tokenizer.batch_decode(model_outputs, add_special_tokens=False, skip_special_tokens=True)
+			output_text = model.tokenizer.batch_decode(
+				model_outputs, add_special_tokens=False, skip_special_tokens=True
+			)
+
 			for key, text, target in zip(batch["keys"], output_text, batch["targets"]):
-				pred.write(key + "\t" + text.replace("\n", " ") + "\n")
-				gt.write(key + "\t" + target + "\n")
+				entry = {
+					"key": key,
+					"prediction": text.replace("\n", " "),
+					"target": target
+				}
+				outfile.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":

@@ -344,7 +344,7 @@ class stt_model(nn.Module):
             pred_texts = self.tokenizer.batch_decode(masked_outputs, skip_special_tokens=True)
             target_texts = self.tokenizer.batch_decode(masked_targets, skip_special_tokens=True)
 
-            return masked_outputs
+            return pred_texts
 
         # if labels is not None:
         #     ignore_ids = {-100, self.tokenizer.pad_token_id}
@@ -385,7 +385,7 @@ class stt_model(nn.Module):
                 return_dict: Optional[bool] = None,
                 **kwargs,
                 ):
-        # kwargs["inference_mode"] = True
+        kwargs["inference_mode"] = True
 
         model_outputs = self.forward(
             input_ids=input_ids,

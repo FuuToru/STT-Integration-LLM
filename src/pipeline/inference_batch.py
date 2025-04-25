@@ -132,10 +132,10 @@ def main(kwargs: DictConfig):
 			for key in batch.keys():
 				batch[key] = batch[key].to(device) if isinstance(batch[key], torch.Tensor) else batch[key]
 			
-			output_text = model.generate(**batch)
-			# output_text = model.tokenizer.batch_decode(
-			# 	model_outputs, add_special_tokens=False, skip_special_tokens=True
-			# )
+			model_outputs = model.generate(**batch)
+			output_text = model.tokenizer.batch_decode(
+				model_outputs, add_special_tokens=False, skip_special_tokens=True
+			)
 
 			for key, text, target in zip(batch["keys"], output_text, batch["targets"]):
 				entry = {

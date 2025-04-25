@@ -313,38 +313,7 @@ class stt_model(nn.Module):
             inputs_embeds = encoder_outs_pad + inputs_embeds * (~modality_mask[:, :, None])
 
         if kwargs.get("inference_mode", False):
-            model_outputs = self.llm(
-                inputs_embeds=inputs_embeds,
-                attention_mask=attention_mask,
-                labels=labels
-            )
-
-            preds = torch.argmax(model_outputs.logits, dim=-1)
-            pad_targets = labels
-            
-            print(pad_targets)
-            pad_outputs = preds
-
-            # Lọc từng sequence theo mask -100
-            mask = pad_targets != -100  # [B, T]
-
-            masked_outputs = []
-            masked_targets = []
-
-            for i in range(pad_outputs.size(0)):
-                # Lưu ý: mask[i] là mask cho sequence i
-                valid_output = pad_outputs[i][mask[i]].tolist()
-                valid_target = pad_targets[i][mask[i]].tolist()
-
-                # Optional: cắt token cuối nếu muốn tránh EOS ở output
-                masked_outputs.append(valid_output[:-1])
-                masked_targets.append(valid_target)
-
-
-            pred_texts = self.tokenizer.batch_decode(masked_outputs, skip_special_tokens=True)
-            target_texts = self.tokenizer.batch_decode(masked_targets, skip_special_tokens=True)
-
-            return pred_texts
+            return inputs_embeds, attention_mask
 
         # if labels is not None:
         #     ignore_ids = {-100, self.tokenizer.pad_token_id}
@@ -387,7 +356,7 @@ class stt_model(nn.Module):
                 ):
         kwargs["inference_mode"] = True
 
-        model_outputs = self.forward(
+        inputs_embeds, attention_mask = self.forward(
             input_ids=input_ids,
             attention_mask=attention_mask,
             position_ids=position_ids,
@@ -401,32 +370,21 @@ class stt_model(nn.Module):
             **kwargs,
         )
 
-        # model_outputs = self.llm.generate(
-        #     inputs_embeds=inputs_embeds,
-        #     # max_length=kwargs.get("max_length", 200),
-        #     max_new_tokens=kwargs.get("max_new_tokens", 200),
-        #     num_beams=kwargs.get("num_beams", 4),
-        #     do_sample=kwargs.get("do_sample", False),
-        #     min_length=kwargs.get("min_length", 1),
-        #     top_p=kwargs.get("top_p", 1.0),
-        #     repetition_penalty=kwargs.get("repetition_penalty", 1.0),
-        #     length_penalty=kwargs.get("length_penalty", 1.0),
-        #     temperature=kwargs.get("temperature", 1.0),
-        #     attention_mask=attention_mask,
-        #     bos_token_id=self.tokenizer.bos_token_id,
-        #     eos_token_id=self.tokenizer.eos_token_id,
-        #     pad_token_id=self.tokenizer.pad_token_id
-        # )
-        # model_outputs = self.llm.generate(
-        #     inputs_embeds=inputs_embeds,
-        #     attention_mask=attention_mask,
-        #     max_new_tokens=50,             # chỉ phép sinh tối đa 50 token
-        #     eos_token_id=self.tokenizer.eos_token_id,
-        #     pad_token_id=self.tokenizer.pad_token_id,
-        #     no_repeat_ngram_size=3,        # không lặp 3-gram
-        #     repetition_penalty=1.2,
-        #     early_stopping=True
-        # )
-
+        model_outputs = self.llm.generate(
+            inputs_embeds=inputs_embeds,
+            # max_length=kwargs.get("max_length", 200),
+            max_new_tokens=kwargs.get("max_new_tokens", 200),
+            num_beams=kwargs.get("num_beams", 4),
+            do_sample=kwargs.get("do_sample", False),
+            min_length=kwargs.get("min_length", 1),
+            top_p=kwargs.get("top_p", 1.0),
+            repetition_penalty=kwargs.get("repetition_penalty", 1.0),
+            length_penalty=kwargs.get("length_penalty", 1.0),
+            temperature=kwargs.get("temperature", 1.0),
+            attention_mask=attention_mask,
+            bos_token_id=self.tokenizer.bos_token_id,
+            eos_token_id=self.tokenizer.eos_token_id,
+            pad_token_id=self.tokenizer.pad_token_id
+        )
 
         return model_outputs

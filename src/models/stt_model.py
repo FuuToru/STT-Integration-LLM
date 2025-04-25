@@ -369,21 +369,32 @@ class stt_model(nn.Module):
             **kwargs,
         )
 
-        model_outputs = self.llm.generate(
-            inputs_embeds=inputs_embeds,
-            # max_length=kwargs.get("max_length", 200),
-            max_new_tokens=kwargs.get("max_new_tokens", 200),
-            num_beams=kwargs.get("num_beams", 4),
-            do_sample=kwargs.get("do_sample", False),
-            min_length=kwargs.get("min_length", 1),
-            top_p=kwargs.get("top_p", 1.0),
-            repetition_penalty=kwargs.get("repetition_penalty", 1.0),
-            length_penalty=kwargs.get("length_penalty", 1.0),
-            temperature=kwargs.get("temperature", 1.0),
+        # model_outputs = self.llm.generate(
+        #     inputs_embeds=inputs_embeds,
+        #     # max_length=kwargs.get("max_length", 200),
+        #     max_new_tokens=kwargs.get("max_new_tokens", 200),
+        #     num_beams=kwargs.get("num_beams", 4),
+        #     do_sample=kwargs.get("do_sample", False),
+        #     min_length=kwargs.get("min_length", 1),
+        #     top_p=kwargs.get("top_p", 1.0),
+        #     repetition_penalty=kwargs.get("repetition_penalty", 1.0),
+        #     length_penalty=kwargs.get("length_penalty", 1.0),
+        #     temperature=kwargs.get("temperature", 1.0),
+        #     attention_mask=attention_mask,
+        #     bos_token_id=self.tokenizer.bos_token_id,
+        #     eos_token_id=self.tokenizer.eos_token_id,
+        #     pad_token_id=self.tokenizer.pad_token_id
+        # )
+        generated = self.llm.generate(
+            input_ids=inputs_embeds,
             attention_mask=attention_mask,
-            bos_token_id=self.tokenizer.bos_token_id,
+            max_new_tokens=50,             # chỉ phép sinh tối đa 50 token
             eos_token_id=self.tokenizer.eos_token_id,
-            pad_token_id=self.tokenizer.pad_token_id
+            pad_token_id=self.tokenizer.pad_token_id,
+            no_repeat_ngram_size=3,        # không lặp 3-gram
+            repetition_penalty=1.2,
+            early_stopping=True
         )
+
 
         return model_outputs

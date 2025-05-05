@@ -15,8 +15,8 @@ code_dir=$(pwd)/scripts
 
 speech_encoder_path=nguyenvulebinh/wav2vec2-base-vietnamese-250h
 llm_path=Qwen/Qwen2.5-1.5B
-train_data_path=/kaggle/input/common-voice-2025/common_voice_vi_export/train/metadata.jsonl
-val_data_path=/kaggle/input/common-voice-2025/common_voice_vi_export/test/metadata.jsonl
+train_data_path=/kaggle/input/vivos-2025/vivos/vivos_train.jsonl
+val_data_path=/kaggle/input/vivos-2025/vivos/vivos_test.jsonl
 output_dir=/kaggle/working/wav2vec2-qwen1.5b$(date +"%Y%m%d")
 
 hydra_args="
@@ -42,7 +42,7 @@ hydra.run.dir=$output_dir \
 ++train_config.freeze_llm=true \
 ++train_config.batching_strategy=custom \
 ++train_config.warmup_steps=1000 \
-++train_config.total_steps=35010  \
+++train_config.total_steps=29150  \
 ++train_config.lr=1e-4 \
 ++train_config.validation_interval=1000 \
 ++train_config.batch_size_training=4 \

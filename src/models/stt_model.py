@@ -336,7 +336,7 @@ class stt_model(nn.Module):
         if self.metric:
             with torch.no_grad():
                 preds = torch.argmax(model_outputs.logits, -1)
-                wer = compute_wer(tokenizer = self.tokenizer, pad_outputs = preds.detach(), pad_targets= labels.detach(), ignore_label=-100)
+                wer = compute_wer(tokenizer = self.tokenizer, pad_outputs = preds.detach()[:, :-1], pad_targets= labels.detach()[:, 1:], ignore_label=-100)
 
         return model_outputs, wer
     

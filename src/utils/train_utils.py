@@ -459,8 +459,8 @@ def evaluation(model,train_config, eval_dataloader, local_rank, tokenizer):
 
                     # Decode
                     input_text = tokenizer.decode(input_ids, skip_special_tokens=True)
-                    label_text = tokenizer.decode(masked_label_ids, skip_special_tokens=True)
-                    pred_text = tokenizer.decode(masked_pred_ids[:-1], skip_special_tokens=True)
+                    label_text = tokenizer.decode(masked_label_ids, skip_special_tokens=False)
+                    pred_text = tokenizer.decode(masked_pred_ids[:-1], skip_special_tokens=False)
                     
 
                     logger.info(f"\nInput Text     : {input_text}")

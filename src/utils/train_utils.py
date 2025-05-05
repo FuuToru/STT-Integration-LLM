@@ -116,8 +116,8 @@ def train(model, train_dataloader, eval_dataloader, tokenizer, optimizer, lr_sch
                     logger.info(f"\nStart Forward")
                     input_ids = batch["input_ids"][0].detach().cpu()
                     label_ids = batch["labels"][0].detach()[1:].cpu()
-                    logits = outputs.logits.detach()[:-1].cpu()
-                    pred_ids = logits.argmax(dim=-1)[0]
+                    logits = outputs.logits[0].detach()[:-1].cpu()
+                    pred_ids = logits.argmax(dim=-1)
                     
                     logger.info(f"\nlabel_ids: {label_ids}")
                     logger.info(f"\npred_ids: {pred_ids}")
@@ -445,8 +445,8 @@ def evaluation(model,train_config, eval_dataloader, local_rank, tokenizer):
                     logger.info(f"\nEVALUATION")
                     input_ids = batch["input_ids"][0].detach().cpu()
                     label_ids = batch["labels"][0].detach()[1:].cpu()
-                    logits = outputs.logits.detach()[: -1].cpu()
-                    pred_ids = logits.argmax(dim=-1)[0]
+                    logits = outputs.logits[0].detach()[: -1].cpu()
+                    pred_ids = logits.argmax(dim=-1)
                     
                     logger.info(f"\nlabel_ids: {label_ids}")
                     logger.info(f"\npred_ids: {pred_ids}")

@@ -116,7 +116,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         # --- Encode Prompt & Answer separately ---
         prompt_ids = self.tokenizer.encode(prompt, add_special_tokens=False)
         answer_ids = self.tokenizer.encode(answer, add_special_tokens=False)
-        example_ids = prompt_ids + [self.tokenizer.eos_token_id] + answer_ids
+        example_ids = prompt_ids + [self.tokenizer.bos_token_id] + answer_ids + [self.tokenizer.eos_token_id]
 
         prompt_length = len(prompt_ids)
 

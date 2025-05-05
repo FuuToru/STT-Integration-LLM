@@ -129,8 +129,8 @@ def train(model, train_dataloader, eval_dataloader, tokenizer, optimizer, lr_sch
 
                     # Decode
                     input_text = tokenizer.decode(input_ids, skip_special_tokens=True)
-                    label_text = tokenizer.decode(masked_label_ids, skip_special_tokens=True)
-                    pred_text = tokenizer.decode(masked_pred_ids[:-1], skip_special_tokens=True)
+                    label_text = tokenizer.decode(masked_label_ids, skip_special_tokens=False)
+                    pred_text = tokenizer.decode(masked_pred_ids[:-1], skip_special_tokens=False)
 
 
                     logger.info(f"\n[Sample Output | Epoch {epoch+1} | Step {step}]")

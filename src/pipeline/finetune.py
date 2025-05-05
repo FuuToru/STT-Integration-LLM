@@ -278,28 +278,28 @@ def main(kwargs: DictConfig):
     floor_steps = 4000
     min_lr_factor = 0.05  # 5% của base_lr = 1e-4 → lr min là 5e-6
 
-    scheduler = torch.optim.lr_scheduler.LambdaLR(
-        optimizer,
-        lr_lambda=lambda step: (
-            min(step / train_config.warmup_steps, 1.0)
-            if step < train_config.warmup_steps else
-            min_lr_factor
-            if step >= train_config.total_steps - floor_steps else
-            max(
-                min_lr_factor,
-                1 - (step - train_config.warmup_steps) /
-                    (train_config.total_steps - train_config.warmup_steps - floor_steps)
-            )
-        )
-    )
     # scheduler = torch.optim.lr_scheduler.LambdaLR(
-    #     optimizer, 
+    #     optimizer,
     #     lr_lambda=lambda step: (
-    #         min(step / train_config.warmup_steps, 1) if step < train_config.warmup_steps
-    #         else  max(0.0, 1 - (step - train_config.warmup_steps) / (train_config.total_steps - train_config.warmup_steps))
-    #         # else 1
+    #         min(step / train_config.warmup_steps, 1.0)
+    #         if step < train_config.warmup_steps else
+    #         min_lr_factor
+    #         if step >= train_config.total_steps - floor_steps else
+    #         max(
+    #             min_lr_factor,
+    #             1 - (step - train_config.warmup_steps) /
+    #                 (train_config.total_steps - train_config.warmup_steps - floor_steps)
+    #         )
     #     )
     # )
+    scheduler = torch.optim.lr_scheduler.LambdaLR(
+        optimizer, 
+        lr_lambda=lambda step: (
+            min(step / train_config.warmup_steps, 1) if step < train_config.warmup_steps
+            else  max(0.0, 1 - (step - train_config.warmup_steps) / (train_config.total_steps - train_config.warmup_steps))
+            # else 1
+        )
+    )
 
     # Start the training process
     results = train(

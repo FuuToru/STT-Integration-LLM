@@ -133,7 +133,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
             }
             
         answer_ids = self.tokenizer.encode(answer, add_special_tokens=False)
-        example_ids = prompt_ids  + answer_ids + [self.tokenizer.eos_token_id]
+        example_ids = prompt_ids + [self.tokenizer.eos_token_id]  + answer_ids 
 
         
 
@@ -294,9 +294,9 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         keys = [s['key'] for s in samples]
         targets = [s['target'] for s in samples]
         
-        print("Input ids:", input_ids)
-        print("Labels ids:", labels)
-        print("Attention mask:", attention_mask)
+        # print("Input ids:", input_ids)
+        # print("Labels ids:", labels)
+        # print("Attention mask:", attention_mask)
         
         return {
             "input_ids": input_ids,

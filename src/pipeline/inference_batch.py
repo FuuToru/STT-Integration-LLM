@@ -133,6 +133,7 @@ def main(kwargs: DictConfig):
 				batch[key] = batch[key].to(device) if isinstance(batch[key], torch.Tensor) else batch[key]
 			
 			model_outputs = model.generate(**batch)
+			print("Model outputs: ", model_outputs)
 			output_text = model.tokenizer.batch_decode(
 				model_outputs, add_special_tokens=False, skip_special_tokens=True
 			)

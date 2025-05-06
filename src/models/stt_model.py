@@ -355,6 +355,8 @@ class stt_model(nn.Module):
                 **kwargs,
                 ):
         kwargs["inference_mode"] = True
+        
+        print("Input ids: ", input_ids)
 
         inputs_embeds, attention_mask = self.forward(
             input_ids=input_ids,

@@ -254,7 +254,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         if self.inference_mode:
             keys = [s['key'] for s in samples]
             targets = [s['target'] for s in samples]
-            # print("Input ids:", input_ids)
+            print("Input ids:", input_ids)
 
             return {
                 "input_ids": input_ids,

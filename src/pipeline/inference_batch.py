@@ -137,6 +137,8 @@ def main(kwargs: DictConfig):
 				model_outputs, add_special_tokens=False, skip_special_tokens=True
 			)
 
+			print("Output text: ", output_text)
+
 			for key, text, target in zip(batch["keys"], output_text, batch["targets"]):
 				entry = {
 					"key": key,

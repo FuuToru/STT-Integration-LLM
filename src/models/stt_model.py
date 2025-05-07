@@ -356,8 +356,8 @@ class stt_model(nn.Module):
                 ):
         kwargs["inference_mode"] = True
         
-        print("Input ids: ", input_ids)
-        print("Attention mask: ", attention_mask)
+        # print("Input ids: ", input_ids)
+        # print("Attention mask: ", attention_mask)
 
         inputs_embeds, attention_mask = self.forward(
             input_ids=input_ids,
@@ -386,7 +386,7 @@ class stt_model(nn.Module):
             temperature=kwargs.get("temperature", 1.0),
             attention_mask=attention_mask,
             bos_token_id=0,
-            eos_token_id=self.tokenizer.eos_token_id,
+            eos_token_id=None,
             pad_token_id=self.tokenizer.pad_token_id
         )
 

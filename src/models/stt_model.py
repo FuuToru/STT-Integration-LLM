@@ -390,6 +390,7 @@ class stt_model(nn.Module):
             forced_bos_token_id=0,
             pad_token_id=self.tokenizer.pad_token_id,
             forced_eos_token_id=self.tokenizer.eos_token_id,
+            decoder_start_token_id=1
         )
 
         return model_outputs

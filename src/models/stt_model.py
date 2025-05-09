@@ -378,10 +378,10 @@ class stt_model(nn.Module):
             # max_length=kwargs.get("max_length", 200),
             max_new_tokens=kwargs.get("max_new_tokens", 200),
             num_beams=kwargs.get("num_beams", 4),
-            do_sample=True,
+            do_sample=kwargs.get("do_sample", False),
             min_length=kwargs.get("min_length", 1),
             top_p=kwargs.get("top_p", 1.0),
-            repetition_penalty=kwargs.get("repetition_penalty", 1.0),
+            # repetition_penalty=kwargs.get("repetition_penalty", 1.0),
             length_penalty=kwargs.get("length_penalty", 1.0),
             temperature=kwargs.get("temperature", 1.0),
             attention_mask=attention_mask,
@@ -390,7 +390,10 @@ class stt_model(nn.Module):
             forced_bos_token_id=0,
             pad_token_id=self.tokenizer.pad_token_id,
             forced_eos_token_id=self.tokenizer.eos_token_id,
-            decoder_start_token_id=1
+            decoder_start_token_id=1,
+            repetition_penalty=1.2,                 # >1 sẽ phạt những token đã xuất hiện
+            no_repeat_ngram_size=3,                 # cấm lặp lại n-gram
+            encoder_no_repeat_ngram_size=3,
         )
 
         return model_outputs

@@ -372,15 +372,13 @@ class stt_model(nn.Module):
             return_dict=return_dict,
             **kwargs,
         )
-        decoder_start_token_id = 1  # hoặc bất kỳ bạn muốn
-        decoder_input_ids = torch.tensor([[decoder_start_token_id]]).to(inputs_embeds.device)
 
         model_outputs = self.llm.generate(
             inputs_embeds=inputs_embeds,
             # max_length=kwargs.get("max_length", 200),
             max_new_tokens=kwargs.get("max_new_tokens", 200),
             num_beams=kwargs.get("num_beams", 4),
-            do_sample=kwargs.get("do_sample", False),
+            do_sample=True,
             min_length=kwargs.get("min_length", 1),
             top_p=kwargs.get("top_p", 1.0),
             repetition_penalty=kwargs.get("repetition_penalty", 1.0),
@@ -392,9 +390,7 @@ class stt_model(nn.Module):
             forced_bos_token_id=0,
             pad_token_id=self.tokenizer.pad_token_id,
             forced_eos_token_id=self.tokenizer.eos_token_id,
-            decoder_start_token_id=1,
-            decoder_input_ids=decoder_input_ids,   # BỔ SUNG DÒNG NÀY
-
+            decoder_start_token_id=1
         )
 
         return model_outputs

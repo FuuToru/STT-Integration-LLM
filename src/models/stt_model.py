@@ -386,7 +386,7 @@ class stt_model(nn.Module):
             temperature=kwargs.get("temperature", 1.0),
             attention_mask=attention_mask,
             bos_token_id=self.tokenizer.bos_token_id,
-            eos_token_id=self.tokenizer.eos_token_id,
+            eos_token_id=None,
             forced_bos_token_id=0,
             pad_token_id=self.tokenizer.pad_token_id,
             forced_eos_token_id=self.tokenizer.eos_token_id,

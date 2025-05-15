@@ -1,6 +1,36 @@
 import torch
 import torch.nn as nn
 
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class SimpleRippleAttention(nn.Module):
+    def __init__(self, dim, num_heads=4):
+        super().__init__()
+        self.num_heads = num_heads
+        self.scale = dim ** -0.5
+        self.qkv = nn.Linear(dim, dim * 3)
+        self.out = nn.Linear(dim, dim)
+
+    def forward(self, x):
+        B, N, C = x.shape
+        qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads)
+        q, k, v = qkv.unbind(dim=2)  # each: (B, N, num_heads, head_dim)
+
+        q = q.transpose(1, 2)  # (B, num_heads, N, head_dim)
+        k = k.transpose(1, 2)
+        v = v.transpose(1, 2)
+
+        attn_scores = (q @ k.transpose(-2, -1)) * self.scale
+        # Optional: add ripple mask or pattern here
+        attn_weights = F.softmax(attn_scores, dim=-1)
+        attn_output = attn_weights @ v  # (B, num_heads, N, head_dim)
+
+        attn_output = attn_output.transpose(1, 2).reshape(B, N, C)
+        return self.out(attn_output)
+
+
 
 class EncoderProjectorConcat(nn.Module):
     def __init__(self, config):
@@ -8,23 +38,32 @@ class EncoderProjectorConcat(nn.Module):
         self.k = config.encoder_projector_ds_rate
         self.encoder_dim = config.encoder_dim
         self.llm_dim = config.llm_dim
+
+        self.ripple_attn = SimpleRippleAttention(dim=self.encoder_dim)
+
         self.linear1 = nn.Linear(self.encoder_dim * self.k, 2048)
         self.relu = nn.ReLU()
         self.linear2 = nn.Linear(2048, config.llm_dim)
 
     def forward(self, x):
         batch_size, seq_len, dim = x.size()
+
+        # Apply Ripple Attention before projection
+        x = self.ripple_attn(x)  # (B, seq_len, encoder_dim)
+
+        # Downsample
         num_frames_to_discard = seq_len % self.k
         if num_frames_to_discard > 0:
             x = x[:, :-num_frames_to_discard, :]
         seq_len = x.size(1)
-        
-        x = x.contiguous()
-        x = x.view(batch_size, seq_len // self.k, dim * self.k)
+
+        # Concatenate every k frames
+        x = x.contiguous().view(batch_size, seq_len // self.k, dim * self.k)
         x = self.linear1(x)
         x = self.relu(x)
         x = self.linear2(x)
         return x
+
 
 class EncoderProjectorCov1d(nn.Module):
     def __init__(self, config):

@@ -15,7 +15,7 @@ code_dir=$(pwd)/scripts
 
 speech_encoder_path=nguyenvulebinh/wav2vec2-base-vietnamese-250h
 llm_path=Qwen/Qwen2.5-1.5B
-train_data_path=/kaggle/input/vivos-2025/vivos/vivos_train.jsonl
+train_data_path=/kaggle/input/vivos-train-augument/vivos_train_augmented.jsonl
 val_data_path=/kaggle/input/vivos-2025/vivos/vivos_test.jsonl
 output_dir=/kaggle/working/wav2vec2-qwen1.5b$(date +"%Y%m%d")
 

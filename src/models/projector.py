@@ -1,69 +1,64 @@
 import torch
 import torch.nn as nn
-
-import torch
-import torch.nn as nn
 import torch.nn.functional as F
 
-# class SimpleRippleAttention(nn.Module):
-#     def __init__(self, dim, num_heads=4):
-#         super().__init__()
-#         self.num_heads = num_heads
-#         self.scale = dim ** -0.5
-#         self.qkv = nn.Linear(dim, dim * 3)
-#         self.out = nn.Linear(dim, dim)
+class SimpleRippleAttention(nn.Module):
+    def __init__(self, dim, num_heads=4, window_size=7, dropout=0.1):
+        super().__init__()
+        self.num_heads = num_heads
+        self.dim = dim
+        self.head_dim = dim // num_heads
+        self.window_size = window_size
+        self.scale = self.head_dim ** -0.5
+        self.dropout = nn.Dropout(dropout)
 
-#     def forward(self, x):
-#         B, N, C = x.shape
-#         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads)
-#         q, k, v = qkv.unbind(dim=2)  # each: (B, N, num_heads, head_dim)
+        self.qkv = nn.Linear(dim, dim * 3)
+        self.out = nn.Linear(dim, dim)
+        self.softmax = nn.Softmax(dim=-1)
 
-#         q = q.transpose(1, 2)  # (B, num_heads, N, head_dim)
-#         k = k.transpose(1, 2)
-#         v = v.transpose(1, 2)
+    def forward(self, x):
+        B, N, C = x.shape  # [batch_size, seq_len, dim]
+        
+        # Compute Q, K, V
+        qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, self.head_dim)
+        q, k, v = qkv.unbind(dim=2)  # each: [batch_size, seq_len, num_heads, head_dim]
+        q = q.transpose(1, 2)  # [batch_size, num_heads, seq_len, head_dim]
+        k = k.transpose(1, 2)
+        v = v.transpose(1, 2)
 
-#         attn_scores = (q @ k.transpose(-2, -1)) * self.scale
-#         # Optional: add ripple mask or pattern here
-#         attn_weights = F.softmax(attn_scores, dim=-1)
-#         attn_output = attn_weights @ v  # (B, num_heads, N, head_dim)
+        # Local window-based attention
+        local_attn_scores = torch.zeros(B, self.num_heads, N, N, device=x.device)
+        for i in range(N):
+            start = max(0, i - self.window_size // 2)
+            end = min(N, i + self.window_size // 2 + 1)
+            q_local = q[:, :, i:i+1, :]  # [batch_size, num_heads, 1, head_dim]
+            k_local = k[:, :, start:end, :]  # [batch_size, num_heads, window_size, head_dim]
+            v_local = v[:, :, start:end, :]  # [batch_size, num_heads, window_size, head_dim]
+            attn = (q_local @ k_local.transpose(-2, -1)) * self.scale
+            attn = self.softmax(attn)
+            attn = self.dropout(attn)
+            local_attn_scores[:, :, i, start:end] = attn
 
-#         attn_output = attn_output.transpose(1, 2).reshape(B, N, C)
-#         return self.out(attn_output)
+        # Global sparse attention (top-k)
+        attn_scores = (q @ k.transpose(-2, -1)) * self.scale
+        topk_attn, topk_indices = torch.topk(attn_scores, k=N//4, dim=-1)
+        topk_attn = self.softmax(topk_attn)
+        topk_attn = self.dropout(topk_attn)
 
+        # Combine local and global attention
+        local_output = (local_attn_scores @ v).transpose(1, 2).reshape(B, N, C)
+        global_output = torch.zeros_like(v)
+        for b in range(B):
+            for h in range(self.num_heads):
+                global_output[b, h] = torch.scatter(
+                    global_output[b, h], dim=0, index=topk_indices[b, h], src=(topk_attn[b, h] @ v[b, h])
+                )
+        global_output = global_output.transpose(1, 2).reshape(B, N, C)
+        output = (local_output + global_output) / 2.0
 
-
-# class EncoderProjectorConcat(nn.Module):
-#     def __init__(self, config):
-#         super().__init__()
-#         self.k = config.encoder_projector_ds_rate
-#         self.encoder_dim = config.encoder_dim
-#         self.llm_dim = config.llm_dim
-
-#         self.ripple_attn = SimpleRippleAttention(dim=self.encoder_dim)
-
-#         self.linear1 = nn.Linear(self.encoder_dim * self.k, 2048)
-#         self.relu = nn.ReLU()
-#         self.linear2 = nn.Linear(2048, config.llm_dim)
-
-#     def forward(self, x):
-#         batch_size, seq_len, dim = x.size()
-
-#         # Apply Ripple Attention before projection
-#         x = self.ripple_attn(x)  # (B, seq_len, encoder_dim)
-
-#         # Downsample
-#         num_frames_to_discard = seq_len % self.k
-#         if num_frames_to_discard > 0:
-#             x = x[:, :-num_frames_to_discard, :]
-#         seq_len = x.size(1)
-
-#         # Concatenate every k frames
-#         x = x.contiguous().view(batch_size, seq_len // self.k, dim * self.k)
-#         x = self.linear1(x)
-#         x = self.relu(x)
-#         x = self.linear2(x)
-#         return x
-
+        # Final projection
+        output = self.out(output)
+        return output
 
 class EncoderProjectorConcat(nn.Module):
     def __init__(self, config):
@@ -71,19 +66,33 @@ class EncoderProjectorConcat(nn.Module):
         self.k = config.encoder_projector_ds_rate
         self.encoder_dim = config.encoder_dim
         self.llm_dim = config.llm_dim
+
+        # Add ripple attention
+        self.ripple_attn = SimpleRippleAttention(
+            dim=self.encoder_dim,
+            num_heads=getattr(config, 'num_heads', 4),
+            window_size=getattr(config, 'window_size', 7),
+            dropout=getattr(config, 'dropout', 0.1)
+        )
+
         self.linear1 = nn.Linear(self.encoder_dim * self.k, 2048)
         self.relu = nn.ReLU()
         self.linear2 = nn.Linear(2048, config.llm_dim)
 
     def forward(self, x):
         batch_size, seq_len, dim = x.size()
+
+        # Apply Ripple Attention before projection
+        x = self.ripple_attn(x)  # [batch_size, seq_len, encoder_dim]
+
+        # Downsample
         num_frames_to_discard = seq_len % self.k
         if num_frames_to_discard > 0:
             x = x[:, :-num_frames_to_discard, :]
         seq_len = x.size(1)
-        
-        x = x.contiguous()
-        x = x.view(batch_size, seq_len // self.k, dim * self.k)
+
+        # Concatenate every k frames
+        x = x.contiguous().view(batch_size, seq_len // self.k, dim * self.k)
         x = self.linear1(x)
         x = self.relu(x)
         x = self.linear2(x)

@@ -40,21 +40,24 @@ class SimpleRippleAttention(nn.Module):
             attn = attn.squeeze(2)  # [batch_size, num_heads, window_size]
             local_attn_scores[:, :, i, start:end] = attn
 
-        # Global sparse attention (top-k)
-        attn_scores = (q @ k.transpose(-2, -1)) * self.scale
-        topk_attn, topk_indices = torch.topk(attn_scores, k=N//4, dim=-1)
+        # Global sparse attention
+        attn_scores = (q @ k.transpose(-2, -1)) * self.scale  # [batch_size, num_heads, seq_len, seq_len]
+        k = N // 4
+        topk_attn, topk_indices = torch.topk(attn_scores, k=k, dim=-1)  # [batch_size, num_heads, seq_len, k]
         topk_attn = self.softmax(topk_attn)
         topk_attn = self.dropout(topk_attn)
 
-        # Combine local and global attention
-        local_output = (local_attn_scores @ v).transpose(1, 2).reshape(B, N, C)
-        global_output = torch.zeros_like(v)
+        # Reconstruct full attention matrix
+        global_attn = torch.zeros(B, self.num_heads, N, N, device=x.device)
         for b in range(B):
             for h in range(self.num_heads):
-                global_output[b, h] = torch.scatter(
-                    global_output[b, h], dim=0, index=topk_indices[b, h], src=(topk_attn[b, h] @ v[b, h])
-                )
-        global_output = global_output.transpose(1, 2).reshape(B, N, C)
+                global_attn[b, h].scatter_(dim=-1, index=topk_indices[b, h], src=topk_attn[b, h])
+
+        # Compute global output
+        global_output = (global_attn @ v).transpose(1, 2).reshape(B, N, C)  # [batch_size, seq_len, dim]
+
+        # Combine local and global attention
+        local_output = (local_attn_scores @ v).transpose(1, 2).reshape(B, N, C)
         output = (local_output + global_output) / 2.0
 
         # Final projection

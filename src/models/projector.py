@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class SimpleRippleAttention(nn.Module):
-    def __init__(self, dim, num_heads=4, window_size=7, dropout=0.1):
+    def __init__(self, dim, num_heads=2, window_size=5, dropout=0.1):
         super().__init__()
         self.num_heads = num_heads
         self.dim = dim
@@ -34,9 +34,10 @@ class SimpleRippleAttention(nn.Module):
             q_local = q[:, :, i:i+1, :]  # [batch_size, num_heads, 1, head_dim]
             k_local = k[:, :, start:end, :]  # [batch_size, num_heads, window_size, head_dim]
             v_local = v[:, :, start:end, :]  # [batch_size, num_heads, window_size, head_dim]
-            attn = (q_local @ k_local.transpose(-2, -1)) * self.scale
+            attn = (q_local @ k_local.transpose(-2, -1)) * self.scale  # [batch_size, num_heads, 1, window_size]
             attn = self.softmax(attn)
             attn = self.dropout(attn)
+            attn = attn.squeeze(2)  # [batch_size, num_heads, window_size]
             local_attn_scores[:, :, i, start:end] = attn
 
         # Global sparse attention (top-k)
@@ -70,8 +71,8 @@ class EncoderProjectorConcat(nn.Module):
         # Add ripple attention
         self.ripple_attn = SimpleRippleAttention(
             dim=self.encoder_dim,
-            num_heads=getattr(config, 'num_heads', 4),
-            window_size=getattr(config, 'window_size', 7),
+            num_heads=getattr(config, 'num_heads', 2),
+            window_size=getattr(config, 'window_size', 5),
             dropout=getattr(config, 'dropout', 0.1)
         )
 

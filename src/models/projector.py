@@ -68,7 +68,6 @@ class EncoderProjectorConcat(nn.Module):
         self.encoder_dim = config.encoder_dim
         self.llm_dim = config.llm_dim
 
-        # Add ripple attention
         self.ripple_attn = SimpleRippleAttention(
             dim=self.encoder_dim,
             num_heads=getattr(config, 'num_heads', 2),
@@ -83,16 +82,13 @@ class EncoderProjectorConcat(nn.Module):
     def forward(self, x):
         batch_size, seq_len, dim = x.size()
 
-        # Apply Ripple Attention before projection
         x = self.ripple_attn(x)  # [batch_size, seq_len, encoder_dim]
 
-        # Downsample
         num_frames_to_discard = seq_len % self.k
         if num_frames_to_discard > 0:
             x = x[:, :-num_frames_to_discard, :]
         seq_len = x.size(1)
 
-        # Concatenate every k frames
         x = x.contiguous().view(batch_size, seq_len // self.k, dim * self.k)
         x = self.linear1(x)
         x = self.relu(x)

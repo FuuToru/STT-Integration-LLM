@@ -355,9 +355,6 @@ class stt_model(nn.Module):
                 **kwargs,
                 ):
         kwargs["inference_mode"] = True
-        
-        # print("Input ids: ", input_ids)
-        # print("Attention mask: ", attention_mask)
 
         inputs_embeds, attention_mask = self.forward(
             input_ids=input_ids,
@@ -381,19 +378,13 @@ class stt_model(nn.Module):
             do_sample=kwargs.get("do_sample", False),
             min_length=kwargs.get("min_length", 1),
             top_p=kwargs.get("top_p", 1.0),
-            # repetition_penalty=kwargs.get("repetition_penalty", 1.0),
+            repetition_penalty=kwargs.get("repetition_penalty", 1.0),
             length_penalty=kwargs.get("length_penalty", 1.0),
             temperature=kwargs.get("temperature", 1.0),
             attention_mask=attention_mask,
-            bos_token_id=3,
-            eos_token_id=None,
-            forced_bos_token_id=0,
-            pad_token_id=self.tokenizer.pad_token_id,
-            forced_eos_token_id=self.tokenizer.eos_token_id,
-            decoder_start_token_id=1,
-            repetition_penalty=1.2,                 # >1 sẽ phạt những token đã xuất hiện
-            no_repeat_ngram_size=3,                 # cấm lặp lại n-gram
-            encoder_no_repeat_ngram_size=3,
+            bos_token_id=self.tokenizer.bos_token_id,
+            eos_token_id=self.tokenizer.eos_token_id,
+            pad_token_id=self.tokenizer.pad_token_id
         )
 
         return model_outputs

@@ -382,7 +382,7 @@ class stt_model(nn.Module):
             length_penalty=kwargs.get("length_penalty", 1.0),
             temperature=kwargs.get("temperature", 1.0),
             attention_mask=attention_mask,
-            bos_token_id=self.tokenizer.bos_token_id,
+            bos_token_id=None,
             eos_token_id=self.tokenizer.eos_token_id,
             pad_token_id=self.tokenizer.pad_token_id
         )

@@ -372,7 +372,6 @@ class stt_model(nn.Module):
 
         model_outputs = self.llm.generate(
             inputs_embeds=inputs_embeds,
-            # max_length=kwargs.get("max_length", 200),
             max_new_tokens=kwargs.get("max_new_tokens", 200),
             num_beams=kwargs.get("num_beams", 4),
             do_sample=kwargs.get("do_sample", False),
@@ -383,8 +382,9 @@ class stt_model(nn.Module):
             temperature=kwargs.get("temperature", 1.0),
             attention_mask=attention_mask,
             bos_token_id=None,
-            eos_token_id=self.tokenizer.eos_token_id,
-            pad_token_id=self.tokenizer.pad_token_id
+            eos_token_id=self.tokenizer.encode("<|im_end|>", add_special_tokens=False)[-1],
+            pad_token_id=self.tokenizer.pad_token_id,
         )
+
 
         return model_outputs

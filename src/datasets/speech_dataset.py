@@ -107,7 +107,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         audio_pseudo = torch.full((audio_length,), -1)
 
         # --- Prompt & Answer ---
-        prompt = task if task is not None else "Transform the spoken words into text accurately."
+        prompt = "Transform the spoken words into text accurately."
         prompt_text = f"<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n"
         answer_text = f"{target}"
 
@@ -117,7 +117,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         end_ids = self.tokenizer.encode("<|im_end|>", add_special_tokens=False)
 
         prompt_length = len(prompt_ids)
-        example_ids = prompt_ids + answer_ids + end_ids
+        example_ids = prompt_ids + answer_ids 
         example_ids = torch.tensor(example_ids, dtype=torch.int64)
         example_ids = torch.cat((audio_pseudo, example_ids))  # [audio_embed, prompt_ids, answer_ids, <|im_end|>]
 

@@ -106,7 +106,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         audio_pseudo = torch.full((audio_length,), -1)
 
         # --- Prompt & Answer ---
-        prompt = task if task is not None else "Chuyển lời nói thành văn bản."
+        prompt = task if task is not None else "Transform the spoken words into text accurately."
         prompt_text = f"<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n"
         answer_text = f"{target}"
 

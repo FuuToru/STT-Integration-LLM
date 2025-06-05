@@ -117,7 +117,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         end_ids = self.tokenizer.encode("<|im_end|>", add_special_tokens=False)
 
         prompt_length = len(prompt_ids)
-        example_ids = prompt_ids + answer_ids + [self.tokenizer.eos_token_id]
+        example_ids = prompt_ids + answer_ids + end_ids  + end_ids  # [prompt_ids, answer_ids,
         example_ids = torch.tensor(example_ids, dtype=torch.int64)
         example_ids = torch.cat((audio_pseudo, example_ids))  # [audio_embed, prompt_ids, answer_ids, <|im_end|>]
 

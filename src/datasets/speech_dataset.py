@@ -115,23 +115,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         prompt_ids = self.tokenizer.encode(prompt_text, add_special_tokens=False)
         answer_ids = self.tokenizer.encode(answer_text, add_special_tokens=False)
         end_ids = self.tokenizer.encode("<|im_end|>", add_special_tokens=False)
-        
-        if self.inference_mode:
-            prompt_ids = torch.tensor(prompt_ids, dtype=torch.int64)
-            example_ids = torch.cat((audio_pseudo, prompt_ids))  # [audio,prompt]
-            example_mask = example_ids.ge(-1)  # [True,True]
 
-            return {
-                "input_ids": example_ids,
-                "attention_mask": example_mask,
-                "audio": audio_raw if self.input_type == "raw" else None,
-                "audio_mel": audio_mel if self.input_type == "mel" else None,
-                "audio_length": audio_length,
-                "key": key,
-                "target": target,
-                "prompt_length": prompt_length,
-            }
-            
         prompt_length = len(prompt_ids)
         example_ids = prompt_ids + answer_ids + end_ids  + end_ids  # [prompt_ids, answer_ids,
         example_ids = torch.tensor(example_ids, dtype=torch.int64)
@@ -272,7 +256,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         if self.inference_mode:
             keys = [s['key'] for s in samples]
             targets = [s['target'] for s in samples]
-            print("Input ids:", input_ids)
+            # print("Input ids:", input_ids)
 
             return {
                 "input_ids": input_ids,

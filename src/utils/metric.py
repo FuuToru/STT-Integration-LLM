@@ -25,7 +25,7 @@ def compute_wer(tokenizer, pad_outputs, pad_targets, ignore_label):
         valid_output = pad_outputs[i][mask[i]].tolist()
         valid_target = pad_targets[i][mask[i]].tolist()
 
-        masked_outputs.append(valid_output[:-1])
+        masked_outputs.append(valid_output)
         masked_targets.append(valid_target)
 
     pred_texts = tokenizer.batch_decode(masked_outputs, skip_special_tokens=True)

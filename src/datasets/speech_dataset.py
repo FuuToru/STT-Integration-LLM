@@ -107,7 +107,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         audio_pseudo = torch.full((audio_length,), -1)
 
         # --- Prompt & Answer ---
-        prompt = "Transform the spoken words into text accurately."
+        prompt = "ASR"
         prompt_text = f"<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n"
         answer_text = f"{target}"
 

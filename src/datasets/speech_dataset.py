@@ -111,7 +111,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         if prompt is None:
             # prompt = random.choice(self.prompt_library)
             # prompt = "Transcribe speech to text. "
-            prompt = "Chuyển lời nói thành văn bản."
+            prompt = "Chuyển lời nói thành văn bản. Xuất kết quả chuyển đổi trực tiếp mà không có nội dung dư thừa. Đảm bảo rằng kết quả không bị trùng lặp. "
         prompt = self.prompt_template.format(prompt)
         prompt_ids = self.tokenizer.encode(prompt)
         prompt_length = len(prompt_ids)
@@ -258,6 +258,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         if self.inference_mode:
             keys = [s['key'] for s in samples]
             targets = [s['target'] for s in samples]
+            print("Input Ids: ", input_ids)
 
             return {
                 "input_ids": input_ids,

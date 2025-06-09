@@ -14,16 +14,16 @@ export WANDB_API_KEY=879f22e33e82b78fdf67aa394cf6620c24340a4c
 code_dir=$(pwd)/scripts
 
 speech_encoder_path=nguyenvulebinh/wav2vec2-base-vietnamese-250h
-llm_path=Qwen/Qwen3-0.6B
+llm_path=Qwen/Qwen3-1.7B
 train_data_path=/kaggle/input/vivos-2025/vivos/vivos_train.jsonl
 val_data_path=/kaggle/input/vivos-2025/vivos/vivos_test.jsonl
-output_dir=/kaggle/working/wav2vec2-qwen3-0.6b$(date +"%Y%m%d")
+output_dir=/kaggle/working/wav2vec2-qwen3-1.7b$(date +"%Y%m%d")
 
 hydra_args="
 hydra.run.dir=$output_dir \
-++model_config.llm_name=qwen3-0.6b \
+++model_config.llm_name=qwen3-1.7b \
 ++model_config.llm_path=$llm_path \
-++model_config.llm_dim=1024 \
+++model_config.llm_dim=2048 \
 ++model_config.encoder_name=wav2vec2 \
 ++model_config.encoder_projector_ds_rate=5 \
 ++model_config.encoder_path=$speech_encoder_path \
@@ -45,8 +45,8 @@ hydra.run.dir=$output_dir \
 ++train_config.total_steps=29150  \
 ++train_config.lr=1e-4 \
 ++train_config.validation_interval=1000 \
-++train_config.batch_size_training=4 \
-++train_config.val_batch_size=4 \
+++train_config.batch_size_training=2 \
+++train_config.val_batch_size=2 \
 ++train_config.num_workers_dataloader=2 \
 ++train_config.output_dir=$output_dir \
 ++metric=wer \
@@ -55,7 +55,7 @@ hydra.run.dir=$output_dir \
 ++log_config.wandb_dir=$output_dir \
 ++log_config.wandb_entity_name=huutri231103 \
 ++log_config.wandb_project_name=stt \
-++log_config.wandb_exp_name=wav2vec-qwen3_0.6b_$(date +"%Y%m%d") \
+++log_config.wandb_exp_name=wav2vec-qwen3_1.7b_$(date +"%Y%m%d") \
 ++log_config.log_interval=5 \
 "
 

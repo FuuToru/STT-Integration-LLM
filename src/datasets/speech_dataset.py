@@ -42,7 +42,8 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         #     "Transform the spoken words into text accurately. ",
         #     "How about putting the speech's content into writing? "
         # ]
-        self.prompt_template = "USER: {}\n ASSISTANT:"
+        self.prompt_template = "<|im_start|>user\n{}\n<|im_end|>\n<|im_start|>assistant\n"
+
         self.answer_template = "{}"
         self.fix_length_audio = dataset_config.get("fix_length_audio", -1)
         self.inference_mode = dataset_config.get("inference_mode", False)

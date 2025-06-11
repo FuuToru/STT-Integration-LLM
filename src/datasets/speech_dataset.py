@@ -112,7 +112,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         if prompt is None:
             # prompt = random.choice(self.prompt_library)
             # prompt = "Transcribe speech to text. "
-            prompt = "Hãy phiên âm lời nói sau thành văn bản tiếng Việt chính xác, không thêm hoặc bỏ sót nội dung."
+            prompt = "Tạo bản ghi chính xác từ đoạn âm thanh sau, chỉ bao gồm lời được nói."
         prompt = self.prompt_template.format(prompt)
         prompt_ids = self.tokenizer.encode(prompt)
         prompt_length = len(prompt_ids)

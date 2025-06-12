@@ -42,7 +42,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         #     "Transform the spoken words into text accurately. ",
         #     "How about putting the speech's content into writing? "
         # ]
-        self.prompt_template = "<|im_start|>user\n{}\n<|im_end|>\n<|im_start|>assistant\n"
+        self.prompt_template = "USER: {}\n ASSISTANT:"
 
         self.answer_template = "{}"
         self.fix_length_audio = dataset_config.get("fix_length_audio", -1)
@@ -112,7 +112,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         if prompt is None:
             # prompt = random.choice(self.prompt_library)
             # prompt = "Transcribe speech to text. "
-            prompt = "Transcribe the speech by carefully listening to it."
+            prompt = "Focus on translating the audible content into text."
         prompt = self.prompt_template.format(prompt)
         prompt_ids = self.tokenizer.encode(prompt)
         prompt_length = len(prompt_ids)

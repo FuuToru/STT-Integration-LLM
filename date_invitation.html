@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lời Mời Hẹn Hò</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Dancing+Script:wght@700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: white;
+            font-family: 'Crimson Text', serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Starry background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(2px 2px at 160px 30px, #fff, transparent),
+                radial-gradient(1px 1px at 200px 100px, rgba(255,255,255,0.9), transparent),
+                radial-gradient(2px 2px at 250px 20px, #fff, transparent),
+                radial-gradient(1px 1px at 300px 60px, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 350px 90px, #fff, transparent),
+                radial-gradient(2px 2px at 400px 40px, rgba(255,255,255,0.8), transparent);
+            background-repeat: repeat;
+            background-size: 420px 120px;
+            animation: sparkle 3s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes sparkle {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .header .script {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4em;
+            color: #ff6b9d;
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+        }
+
+        .subtitle {
+            font-family: 'Crimson Text', serif;
+            font-size: 1.3em;
+            opacity: 0.9;
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            background: linear-gradient(to bottom, #ff6b9d, #4ecdc4);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -1px;
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.3);
+        }
+
+        .timeline-item {
+            padding: 30px 0;
+            position: relative;
+            width: 50%;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .timeline-item:nth-child(1) { animation-delay: 0.2s; }
+        .timeline-item:nth-child(2) { animation-delay: 0.4s; }
+        .timeline-item:nth-child(3) { animation-delay: 0.6s; }
+        .timeline-item:nth-child(4) { animation-delay: 0.8s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .timeline-item:nth-child(odd) {
+            left: 0;
+            text-align: right;
+            padding-right: 50px;
+        }
+
+        .timeline-item:nth-child(even) {
+            left: 50%;
+            text-align: left;
+            padding-left: 50px;
+        }
+
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .time {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #ff6b9d;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(255, 107, 157, 0.3);
+        }
+
+        .event {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .location {
+            font-size: 0.95em;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border: 3px solid #ff6b9d;
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 15px rgba(255, 107, 157, 0.5);
+        }
+
+        .timeline-item:nth-child(odd)::before {
+            right: -8px;
+        }
+
+        .timeline-item:nth-child(even)::before {
+            left: -8px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .names {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5em;
+            color: #4ecdc4;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+        }
+
+        .date {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3em;
+            opacity: 0.9;
+            letter-spacing: 2px;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 40px 20px;
+            }
+
+            .header h1 {
+                font-size: 2.5em;
+            }
+
+            .header .script {
+                font-size: 3em;
+            }
+
+            .timeline::before {
+                left: 30px;
+            }
+
+            .timeline-item {
+                width: 100%;
+                padding-left: 60px !important;
+                padding-right: 20px !important;
+                text-align: left !important;
+            }
+
+            .timeline-item:nth-child(even) {
+                left: 0;
+            }
+
+            .timeline-item::before {
+                left: 22px !important;
+            }
+
+            .names {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Date <span class="script">Invitation</span></h1>
+            <p class="subtitle">Hãy cùng tôi trải qua một buổi tối tuyệt vời</p>
+            <p class="subtitle" style="margin-top: 10px; color: #ff6b9d; font-size: 1.1em;">Thứ 5 ngày mai</p>
+        </div>
+        
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="time">18:30</div>
+                    <div class="event">ĐÓN EM TẠI NHÀ</div>
+                    <div class="location">Anh sẽ đến đón em nhé ❤️</div>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="time">19:00</div>
+                    <div class="event">AGECHAN RESTAURANT</div>
+                    <div class="location">Cùng nhau thưởng thức bữa tối</div>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="time">20:00</div>
+                    <div class="event">CAFE 14 FEB</div>
+                    <div class="location">Trò chuyện bên tách café thơm</div>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="time">22:00</div>
+                    <div class="event">ĐƯA EM VỀ NHÀ</div>
+                    <div class="location">Kết thúc buổi tối tuyệt vời</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="names">With Love ❤️</div>
+            <div class="date">A Perfect Evening Together</div>
+        </div>
+    </div>
+</body>
+</html> 

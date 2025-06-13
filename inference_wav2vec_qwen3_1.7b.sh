@@ -7,19 +7,19 @@ export TOKENIZERS_PARALLELISM=false
 code_dir=$(pwd)/scripts
 
 speech_encoder_path=nguyenvulebinh/wav2vec2-base-vietnamese-250h
-llm_path=Qwen/Qwen3-1.7B
+llm_path=Qwen/Qwen3-0.6B
 
 output_dir=/kaggle/working/STT-Integration-LLM
-ckpt_path=$output_dir/wav2vec-qwen3-1.7b-vivos-11-6
+ckpt_path=$output_dir/wav2vec-qwen3-0.6b-vivos-6-6
 split=vivos_test
 val_data_path=/kaggle/input/vivos-2025/vivos/vivos_test.jsonl
 decode_log=$ckpt_path/decode_${split}_beam4
 
 python $code_dir/inference.py \
         hydra.run.dir=$ckpt_path \
-        ++model_config.llm_name=qwen3-1.7b \
+        ++model_config.llm_name=qwen3-0.6b \
         ++model_config.llm_path=$llm_path \
-        ++model_config.llm_dim=2048 \
+        ++model_config.llm_dim=1024 \
         ++model_config.encoder_name=wav2vec2 \
         ++model_config.encoder_projector_ds_rate=5 \
         ++model_config.encoder_path=$speech_encoder_path \

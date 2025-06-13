@@ -10,7 +10,7 @@ speech_encoder_path=nguyenvulebinh/wav2vec2-base-vietnamese-250h
 llm_path=Qwen/Qwen3-1.7B
 
 output_dir=/kaggle/working/STT-Integration-LLM
-ckpt_path=$output_dir/wav2vec-qwen3-1.7b-vivos-12-6
+ckpt_path=$output_dir/wav2vec-qwen3-1.7b-vivos-13-6
 split=vivos_test
 val_data_path=/kaggle/input/vivos-2025/vivos/vivos_test.jsonl
 decode_log=$ckpt_path/decode_${split}_beam4

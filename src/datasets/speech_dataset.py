@@ -112,11 +112,7 @@ class SpeechDatasetJsonl(torch.utils.data.Dataset):
         if prompt is None:
             # prompt = random.choice(self.prompt_library)
             # prompt = "Transcribe speech to text. "
-            prompt = """Bạn sẽ được cung cấp một đoạn âm thanh ghi lại lời nói bằng tiếng Việt. Nhiệm vụ của bạn là chuyển nội dung được nói trong đoạn âm thanh đó thành văn bản tiếng Việt chính xác, phản ánh đúng toàn bộ nội dung gốc, không thêm, không bớt, và không đưa ra bất kỳ bình luận, giải thích hay định dạng phụ nào.
-
-            Kết quả trả về chỉ bao gồm phần văn bản tương ứng với lời nói, không cần nhãn, tiêu đề hoặc dấu hiệu nào khác. Nếu trong đoạn âm thanh có tiếng ậm ừ, ngập ngừng hoặc từ vô nghĩa, bạn có thể bỏ qua để làm cho nội dung rõ ràng hơn, nhưng không được tự ý diễn giải hoặc thay đổi ý nghĩa của lời nói gốc.
-
-            Hãy đảm bảo rằng văn bản đầu ra không bị trùng lặp, không bị thiếu sót, và sử dụng ngữ pháp, chính tả tiếng Việt chuẩn."""
+            prompt = """Bạn sẽ được cung cấp một đoạn âm thanh ghi lại lời nói bằng tiếng Việt. Nhiệm vụ của bạn là chuyển nội dung được nói trong đoạn âm thanh đó thành văn bản tiếng Việt chính xác, phản ánh đúng toàn bộ nội dung gốc, không thêm, không bớt, và không đưa ra bất kỳ bình luận, giải thích hay định dạng phụ nào. Kết quả trả về chỉ bao gồm phần văn bản tương ứng với lời nói, không cần nhãn, tiêu đề hoặc dấu hiệu nào khác. Nếu trong đoạn âm thanh có tiếng ậm ừ, ngập ngừng hoặc từ vô nghĩa, bạn có thể bỏ qua để làm cho nội dung rõ ràng hơn, nhưng không được tự ý diễn giải hoặc thay đổi ý nghĩa của lời nói gốc. Hãy đảm bảo rằng văn bản đầu ra không bị trùng lặp, không bị thiếu sót, và sử dụng ngữ pháp, chính tả tiếng Việt chuẩn."""
 
         prompt = self.prompt_template.format(prompt)
         prompt_ids = self.tokenizer.encode(prompt)

@@ -4,8 +4,6 @@ export CUDA_VISIBLE_DEVICES=0
 export TOKENIZERS_PARALLELISM=false
 export OMP_NUM_THREADS=1
 
-export WANDB_API_KEY=879f22e33e82b78fdf67aa394cf6620c24340a4c
-
 # Debugging settings for multiple GPUs
 # export NCCL_DEBUG=INFO
 # export NCCL_DEBUG_SUBSYS=ALL
